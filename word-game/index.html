@@ -25,6 +25,13 @@
             position: fixed;
             overflow: hidden;
         }
+        .incorrect { border-color: #ef4444; animation: shake 0.5s; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
     </style>
 </head>
 <body>
@@ -103,6 +110,8 @@
                 checkAnswer: "Check Answer",
                 correct: "Correct!",
                 wrong: "Wrong!",
+                tryLeft: "more try",
+                triesLeft: "more tries",
                 yourAnswer: "Your Answer",
                 correctAnswer: "Correct Answer",
                 randomWord: "Random Word",
@@ -128,6 +137,8 @@
                 checkAnswer: "Controleer Antwoord",
                 correct: "Correct!",
                 wrong: "Fout!",
+                tryLeft: "poging over",
+                triesLeft: "pogingen over",
                 yourAnswer: "Jouw Antwoord",
                 correctAnswer: "Juiste Antwoord",
                 randomWord: "Willekeurig Woord",
@@ -163,6 +174,9 @@
             const [isWordVisible, setIsWordVisible] = useState(false);
             const [showSettings, setShowSettings] = useState(false);
             const [showHelp, setShowHelp] = useState(false);
+            
+            const [triesLeft, setTriesLeft] = useState(3);
+            const [isInputIncorrect, setIsInputIncorrect] = useState(false);
 
             const timeoutRef = useRef(null);
             const inputRef = useRef(null);
@@ -199,6 +213,8 @@
                 setResult(null);
                 setPlayerInput('');
                 setIsWordVisible(true);
+                
+                setTriesLeft(3); 
 
                 let wordToUse = '';
                 if (isUserWord) {
@@ -234,22 +250,38 @@
                 setCurrentWord('');
                 setGameState('idle');
                 setUserWordInput('');
+                setTriesLeft(3);
             }, []);
 
             const checkAnswer = useCallback(() => {
                 const isCorrect = parseInt(playerInput, 10) === correctAnswer;
-                setResult({ success: isCorrect, correct: correctAnswer, player: playerInput });
-                if (isCorrect) setScore(prev => prev + 1);
-                setRoundsPlayed(prev => prev + 1);
-                setGameState('showing_result');
 
-                const nextStep = isUserWord
-                    ? () => { setGameState('idle'); setUserWordInput(''); }
-                    : startRound;
+                if (isCorrect) {
+                    setResult({ success: true, correct: correctAnswer, player: playerInput });
+                    if (triesLeft > 0) setScore(prev => prev + 1); // Only score if they had tries left
+                    setRoundsPlayed(prev => prev + 1);
+                    setGameState('showing_result');
 
-                timeoutRef.current = setTimeout(nextStep, 3000);
+                    const nextStep = isUserWord ? () => { setGameState('idle'); setUserWordInput(''); } : startRound;
+                    timeoutRef.current = setTimeout(nextStep, 3000);
+                } else {
+                    const newTriesLeft = triesLeft - 1;
+                    setTriesLeft(newTriesLeft);
+                    setIsInputIncorrect(true);
+                    setTimeout(() => setIsInputIncorrect(false), 500);
+                    setPlayerInput(''); // Clear input for the next try
 
-            }, [playerInput, correctAnswer, startRound, isUserWord]);
+                    if (newTriesLeft <= 0) {
+                        setResult({ success: false, correct: correctAnswer, player: playerInput });
+                        setRoundsPlayed(prev => prev + 1);
+                        setGameState('showing_result');
+
+                        const nextStep = isUserWord ? () => { setGameState('idle'); setUserWordInput(''); } : startRound;
+                        timeoutRef.current = setTimeout(nextStep, 3000);
+                    }
+                    // If tries are left, do nothing else; the user stays on the input screen.
+                }
+            }, [playerInput, correctAnswer, triesLeft, isUserWord, startRound, t.errorEnterWord, userWordInput]);
                 
             const handleSettingChange = (setter, valueFn) => {
                 setter(valueFn);
@@ -300,8 +332,11 @@
                                     value: playerInput,
                                     onChange: e => setPlayerInput(e.target.value),
                                     onKeyDown: handleKeyDown,
-                                    className: 'w-48 h-20 text-4xl font-semibold text-center text-gray-700 bg-white border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition'
+                                    className: `w-48 h-20 text-4xl font-semibold text-center text-gray-700 bg-white border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition ${isInputIncorrect ? 'incorrect' : ''}`
                                 }),
+                                React.createElement('div', { key: 'tries-left', className: 'h-6 mt-2 text-red-500 font-semibold' },
+                                    (triesLeft < 3 && triesLeft > 0) && `${triesLeft} ${triesLeft === 1 ? t.tryLeft : t.triesLeft}`
+                                ),
                                 React.createElement('button', {
                                     key: 'submit',
                                     onClick: checkAnswer,
