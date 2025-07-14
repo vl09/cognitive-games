@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Cognitive Spelling Game</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; }
+        * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        html, body, #root { height: 100%; width: 100%; position: fixed; overflow: hidden; }
+        .post-it {
+            position: absolute;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .post-it:hover {
+            transform: scale(1.1) rotate(0deg) !important; /* Override rotation on hover */
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+            z-index: 105 !important; /* Ensure hovered item is always on top */
+        }
+        .post-it.incorrect { border-color: #ef4444; animation: shake 0.5s; }
+        .post-it.flash-correct { animation: flash-green 0.4s ease-out; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        @keyframes flash-green {
+            50% { border-color: #22c55e; transform: scale(1.1); }
+            100% { border-color: transparent; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        // Function to get language from URL
+        function getLangFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const lang = urlParams.get('lang');
+            if (lang === 'en' || lang === 'nl') {
+                return lang;
+            }
+            return null;
+        }
+        
+        const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+        // --- Cookie Utilities ---
+        const setCookie = (name, value, days = 365) => {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expires.toUTCString()};path=/`;
+        };
+
+        const getCookie = (name) => {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) {
+                    try {
+                        return JSON.parse(decodeURIComponent(c.substring(nameEQ.length, c.length)));
+                    } catch (e) { return null; }
+                }
+            }
+            return null;
+        };
+
+        // --- Icon Components ---
+        const PlayIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement('polygon', { points: "5,3 19,12 5,21" }));
+        const RotateCcwIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('polyline', { key: 1, points: "1,4 1,10 7,10" }), React.createElement('path', { key: 2, d: "M3.51 15a9 9 0 1 0 2.13-9.36L1 10" })]);
+        const SettingsIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), React.createElement('circle', { key: 2, cx: "12", cy: "12", r: "3" })]);
+        const XIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M18 6L6 18" }), React.createElement('path', { key: 2, d: "M6 6l12 12" })]);
+        const CheckIcon = ({ className }) => React.createElement('svg', { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", className }, React.createElement('polyline', { points: "20 6 9 17 4 12" }));
+        const XCircleIcon = ({ className }) => React.createElement('svg', { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className }, [React.createElement('circle', { key: 1, cx: 12, cy: 12, r: 10 }), React.createElement('line', { key: 2, x1: 15, y1: 9, x2: 9, y2: 15 }), React.createElement('line', { key: 3, x1: 9, y1: 9, x2: 15, y2: 15 })]);
+        const InfoIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('circle', { cx: 12, cy: 12, r: 10 }), React.createElement('line', { x1: 12, y1: 16, x2: 12, y2: 12 }), React.createElement('line', { x1: 12, y1: 8, x2: 12.01, y2: 8 })]);
+        const LightbulbIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" }), React.createElement('path', { key: 2, d: "M9 18h6" }), React.createElement('path', { key: 3, d: "M10 22h4" })]);
+        const EyeIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" }), React.createElement('circle', { key: 2, cx: "12", cy: "12", r: "3" })]);
+        const EyeOffIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M9.88 9.88a3 3 0 1 0 4.24 4.24" }), React.createElement('path', { key: 2, d: "M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" }), React.createElement('path', { key: 3, d: "M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" }), React.createElement('line', { key: 4, x1: "2", x2: "22", y1: "2", y2: "22" })]);
+        const SigmaIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 400 400", fill: "currentColor", stroke: "none" }, [React.createElement('path', { key: 1, d: "M 94.942 30.255 h 216.706 l 5.753 72.659 h -8.097 q -1.492 -21.521 -7.245 -32.814 q -5.753 -11.507 -15.768 -16.62 q -10.015 -5.113 -31.748 -5.113 h -98.655 l 88 112.931 l -100.147 118.255 h 109.735 q 29.831 0 45.599 -9.588 q 15.768 -9.588 23.652 -40.059 l 8.097 1.918 l -12.358 87.362 h -223.514 v -7.671 l 111.227 -131.261 l -111.227 -142.336 z" })]);
+        const FastForwardIcon = () => React.createElement('svg', { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('polygon', { key: 1, points: "13 19 22 12 13 5 13 19" }), React.createElement('polygon', { key: 2, points: "2 19 11 12 2 5 2 19" })]);
+        const ShuffleIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('polyline', { key: 1, points: "16 3 21 3 21 8" }), React.createElement('line', { key: 2, x1: "4", y1: "20", x2: "21", y2: "3" }), React.createElement('polyline', { key: 3, points: "21 16 21 21 16 21" }), React.createElement('line', { key: 4, x1: "15", y1: "15", x2: "21", y2: "21" }), React.createElement('line', { key: 5, x1: "4", y1: "4", x2: "9", y2: "9" })]);
+        const SlidersIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [
+            React.createElement('line', { key: 1, x1: "4", y1: "21", x2: "4", y2: "14" }),
+            React.createElement('line', { key: 2, x1: "4", y1: "10", x2: "4", y2: "3" }),
+            React.createElement('line', { key: 3, x1: "12", y1: "21", x2: "12", y2: "12" }),
+            React.createElement('line', { key: 4, x1: "12", y1: "8", x2: "12", y2: "3" }),
+            React.createElement('line', { key: 5, x1: "20", y1: "21", x2: "20", y2: "16" }),
+            React.createElement('line', { key: 6, x1: "20", y1: "12", x2: "20", y2: "3" }),
+            React.createElement('line', { key: 7, x1: "1", y1: "14", x2: "7", y2: "14" }),
+            React.createElement('line', { key: 8, x1: "9", y1: "8", x2: "15", y2: "8" }),
+            React.createElement('line', { key: 9, x1: "17", y1: "16", x2: "23", y2: "16" })
+        ]);
+        const SwitchVerticalIcon = () => React.createElement('svg', { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, [
+            React.createElement('path', { key: 1, d: "m3 16 4 4 4-4" }),
+            React.createElement('path', { key: 2, d: "M7 20V4" }),
+            React.createElement('path', { key: 3, d: "m21 8-4-4-4 4" }),
+            React.createElement('path', { key: 4, d: "M17 4v16" })
+        ]);
+        const HomeIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }), React.createElement('polyline', { points: "9 22 9 12 15 12 15 22" })]);
+        const ListOrderedIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [
+            React.createElement('line', { key: 'l1', x1: "10", x2: "21", y1: "6", y2: "6" }),
+            React.createElement('line', { key: 'l2', x1: "10", x2: "21", y1: "12", y2: "12" }),
+            React.createElement('line', { key: 'l3', x1: "10", x2: "21", y1: "18", y2: "18" }),
+            React.createElement('path', { key: 'p1', d: "M4 6h1v4" }),
+            React.createElement('path', { key: 'p2', d: "M4 10h2" }),
+            React.createElement('path', { key: 'p3', d: "M6 18H4c0-1 2-2 2-3s-1-1.5-2-2" })
+        ]);
+
+
+        // --- Word Lists ---
+        const wordLists = {
+            en: {
+                easy: ["CAT", "DOG", "SUN", "SKY", "RUN", "EAT", "FLY"],
+                medium: ["HOUSE", "WATER", "EARTH", "HAPPY", "SMILE", "OCEAN", "LEVEL"],
+                hard: ["COMPUTER", "KNOWLEDGE", "BEAUTIFUL", "CHALLENGE", "SEQUENCE", "EXCELLENT"]
+            },
+            nl: {
+                easy: ["KAT", "HOND", "ZON", "REN", "EET", "VLIEG"],
+                medium: ["HUIS", "WATER", "AARDE", "BLIJ", "LACH", "ZEE", "LEPEL"],
+                hard: ["COMPUTER", "KENNIS", "PRACHTIG", "UITDAGING", "REEKS", "EXCELLENT"]
+            }
+        };
+        
+        // --- Color Rules ---
+        const colorRules = {
+            en: [
+                { id: 'allBlack', name: 'All Black' },
+                { id: 'allBlue', name: 'All Blue' },
+                { id: 'custom', name: 'Custom Pattern' }
+            ],
+            nl: [
+                { id: 'allBlack', name: 'Alles Zwart' },
+                { id: 'allBlue', name: 'Alles Blauw' },
+                { id: 'custom', name: 'Eigen Patroon' }
+            ]
+        };
+
+        // --- Internationalization ---
+        const translations = {
+            en: {
+                title: "Lexi-Mosaic Game",
+                description: "Spell the word by selecting letters and numbers in the correct color sequence.",
+                startGame: "Start Game",
+                score: "Score",
+                round: "Round",
+                correct: "Correct!",
+                wrong: "Wrong!",
+                spellTheWord: "Spell the word:",
+                hintPrompt: "Hint: Find the",
+                black: "black",
+                blue: "blue",
+                letter: "letter",
+                number: "number",
+                examplePattern: "Example Pattern",
+                settingsTitle: "Settings",
+                language: "Language",
+                difficulty: "Difficulty",
+                difficultyEasy: "Easy",
+                difficultyMedium: "Medium",
+                difficultyHard: "Hard",
+                colorRule: "Color Rule",
+                sumChallenge: "Sum Challenge",
+                sumChallengeOn: "Sum On",
+                sumChallengeOff: "Sum Off",
+                whatIsTheSum: "What is the total sum?",
+                checkAnswer: "Check",
+                yourAnswer: "Your Answer",
+                correctAnswer: "Correct Answer",
+                hint: "Hint",
+                tryLeft: "more try",
+                triesLeft: "more tries",
+                helpTitle: "How to Play",
+                helpDesc: "Change settings using the buttons below. Changing a setting will restart the game.",
+                helpGamePlay: "Gameplay",
+                helpGamePlayDesc: "A word appears, and you must spell it by clicking items. For each letter (e.g., 'C'), first click the letter 'C', then its matching number (A=1, B=2, C=3).",
+                helpDifficultyLevels: "Difficulty",
+                helpDifficultyLevelsDesc: "Changes the length and complexity of the words you need to spell.",
+                helpColorRule: "Color Rule",
+                helpColorRuleDesc: "Defines the required color for each item you click. You can use presets or create a custom repeating pattern for letters and numbers.",
+                helpSumChallenge: "Sum Challenge",
+                helpSumChallengeDesc: "If active, you must enter the total sum of all numbers clicked at the end of the round.",
+                helpShuffle: "Shuffle Board",
+                helpShuffleDesc: "When on, the position of all items on the board will be randomized at the start of each new round.",
+                helpShowWord: "Show Word",
+                helpShowWordDesc: "Keeps the target word visible during your turn, highlighting the current letter you need to find.",
+                helpShowHint: "Show Hint",
+                helpShowHintDesc: "Reveals the exact type, value, and color of the next item you need to click.",
+                helpMainSettings: "Main Settings",
+                helpMainSettingsDesc: "Opens the panel for changing the game's language.",
+                mobileWarningTitle: "Screen Too Small",
+                mobileWarningText: "This game is designed for larger screens and may not be fully functional on your current device. For the best experience, please use a device with a screen width of at least 1040 pixels.",
+                goBack: "Go to Homepage"
+            },
+            nl: {
+                title: "Woordmozaïek Spel",
+                description: "Spel het woord door letters en cijfers in de juiste kleurenvolgorde te selecteren.",
+                startGame: "Start Spel",
+                score: "Score",
+                round: "Ronde",
+                correct: "Correct!",
+                wrong: "Fout!",
+                spellTheWord: "Spel het woord:",
+                hintPrompt: "Hint: Vind",
+                black: "zwarte",
+                blue: "blauwe",
+                letter: "letter",
+                number: "cijfer",
+                examplePattern: "Voorbeeld Patroon",
+                settingsTitle: "Instellingen",
+                language: "Taal",
+                difficulty: "Moeilijkheidsgraad",
+                difficultyEasy: "Makkelijk",
+                difficultyMedium: "Gemiddeld",
+                difficultyHard: "Moeilijk",
+                colorRule: "Kleurregel",
+                sumChallenge: "Som Uitdaging",
+                sumChallengeOn: "Som Aan",
+                sumChallengeOff: "Som Uit",
+                whatIsTheSum: "Wat is de totale som?",
+                checkAnswer: "Controleer",
+                yourAnswer: "Jouw Antwoord",
+                correctAnswer: "Juiste Antwoord",
+                hint: "Hint",
+                tryLeft: "poging over",
+                triesLeft: "pogingen over",
+                helpTitle: "Spelinstructies",
+                helpDesc: "Wijzig instellingen met de knoppen hieronder. Het wijzigen van een instelling herstart het spel.",
+                helpGamePlay: "Spelverloop",
+                helpGamePlayDesc: "Er verschijnt een woord en je moet het spellen door op items te klikken. Voor elke letter (bijv. 'C'), klik eerst op de letter 'C' en dan op het bijbehorende cijfer (A=1, B=2, C=3).",
+                helpDifficultyLevels: "Moeilijkheidsgraad",
+                helpDifficultyLevelsDesc: "Verandert de lengte en complexiteit van de te spellen woorden.",
+                helpColorRule: "Kleurregel",
+                helpColorRuleDesc: "Bepaalt de vereiste kleur voor elk item dat je aanklikt. Je kunt voorinstellingen gebruiken of een eigen herhalend patroon maken voor letters en cijfers.",
+                helpSumChallenge: "Som Uitdaging",
+                helpSumChallengeDesc: "Indien actief, moet je aan het einde van de ronde de totale som van alle aangeklikte cijfers invoeren.",
+                helpShuffle: "Bord Schudden",
+                helpShuffleDesc: "Indien ingeschakeld, wordt de positie van alle items op het bord aan het begin van elke nieuwe ronde willekeurig bepaald.",
+                helpShowWord: "Toon Woord",
+                helpShowWordDesc: "Houdt het doelwoord zichtbaar tijdens je beurt, waarbij de huidige letter die je moet vinden wordt gemarkeerd.",
+                helpShowHint: "Toon Hint",
+                helpShowHintDesc: "Onthult het exacte type, de waarde en de kleur van het volgende item dat je moet aanklikken.",
+                helpMainSettings: "Hoofdinstellingen",
+                helpMainSettingsDesc: "Opent het paneel om de taal van het spel te wijzigen.",
+                mobileWarningTitle: "Scherm te Klein",
+                mobileWarningText: "Dit spel is ontworpen voor grotere schermen en is mogelijk niet volledig functioneel op uw huidige apparaat. Voor de beste ervaring, gebruik alstublieft een apparaat met een schermbreedte van minstens 1040 pixels.",
+                goBack: "Ga naar de Homepage"
+            }
+        };
+
+        // --- Mobile Warning Component ---
+        const MobileWarning = ({ t, language }) => {
+            return React.createElement('div', { className: "fixed inset-0 bg-gray-900 bg-opacity-90 z-50 flex items-center justify-center p-4 text-center" },
+                React.createElement('div', { className: 'bg-white rounded-xl shadow-2xl w-full max-w-md p-6 sm:p-8' }, [
+                    React.createElement('h2', { key: 'title', className: 'text-2xl sm:text-3xl font-bold text-red-600 mb-4' }, t.mobileWarningTitle),
+                    React.createElement('p', { key: 'text', className: 'text-gray-700 mb-8 text-base sm:text-lg' }, t.mobileWarningText),
+                    React.createElement('a', {
+                        key: 'button',
+                        href: `../index.html?lang=${language}`,
+                        className: "inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-500 transition-colors text-lg shadow-lg"
+                    }, [
+                        React.createElement(HomeIcon, { key: 'icon' }),
+                        React.createElement('span', { key: 'text' }, t.goBack)
+                    ])
+                ])
+            );
+        };
+
+        // --- Main Game Component ---
+        const CognitiveSpellingGame = () => {
+            const [isMobileDevice, setIsMobileDevice] = useState(false);
+            const [gameState, setGameState] = useState('idle');
+            const [score, setScore] = useState(0);
+            const [roundsPlayed, setRoundsPlayed] = useState(0);
+            const [boardItems, setBoardItems] = useState([]);
+            
+            const [currentWord, setCurrentWord] = useState('');
+            const [playerSequence, setPlayerSequence] = useState([]);
+            const [currentStepIndex, setCurrentStepIndex] = useState(0);
+            
+            const [result, setResult] = useState(null);
+            const [incorrectClickId, setIncorrectClickId] = useState(null);
+            const [lastCorrectClickId, setLastCorrectClickId] = useState(null);
+            const [sumInput, setSumInput] = useState('');
+            const [showHint, setShowHint] = useState(false);
+            const [isWordPermanentlyVisible, setIsWordPermanentlyVisible] = useState(false);
+
+            const [showSettings, setShowSettings] = useState(false);
+            const [showHelp, setShowHelp] = useState(false);
+            
+            const [sumTriesLeft, setSumTriesLeft] = useState(3);
+            const [isSumInputIncorrect, setIsSumInputIncorrect] = useState(false);
+            
+            const [isColorPopoverOpen, setIsColorPopoverOpen] = useState(false);
+            const colorPopoverButtonRef = useRef(null);
+            const [customRule, setCustomRule] = useState({
+                letter: [
+                    { color: 'black', steps: 1 },
+                    { color: 'blue', steps: 0 }
+                ],
+                number: [
+                    { color: 'black', steps: 0 },
+                    { color: 'blue', steps: 1 }
+                ]
+            });
+
+            // --- Settings State (with cookie loading) ---
+            const [language, setLanguage] = useState(() => getLangFromURL() || getCookie('cognitiveGameLang') || 'nl');
+            const [difficulty, setDifficulty] = useState(() => getCookie('cognitiveGameDifficulty') || 'easy');
+            const [activeColorRuleId, setActiveColorRuleId] = useState(() => getCookie('cognitiveGameColorRule') || 'alternate_type');
+            const [askForSum, setAskForSum] = useState(() => getCookie('cognitiveGameSum') || false);
+            const [shouldShufflePerRound, setShouldShufflePerRound] = useState(() => getCookie('cognitiveGameShuffle') ?? true);
+            const shuffleRef = useRef(shouldShufflePerRound);
+            
+            useEffect(() => {
+                const checkScreenSize = () => {
+                    // Set state based on screen width
+                    setIsMobileDevice(window.innerWidth < 1040);
+                };
+                
+                // Initial check
+                checkScreenSize();
+                
+                // Add listener for resize events
+                window.addEventListener('resize', checkScreenSize);
+                
+                // Cleanup listener on component unmount
+                return () => window.removeEventListener('resize', checkScreenSize);
+            }, []); // Empty array ensures this effect runs only on mount and unmount
+
+            useEffect(() => {
+                shuffleRef.current = shouldShufflePerRound;
+            }, [shouldShufflePerRound]);
+
+            const timeoutRef = useRef(null);
+            const t = translations[language];
+            const activeRules = colorRules[language];
+            
+            const handleLanguageChange = (newLang) => {
+                setLanguage(newLang);
+                const url = new URL(window.location);
+                url.searchParams.set('lang', newLang);
+                window.history.pushState({}, '', url);
+            };
+            
+            const shuffleArray = (array) => {
+                let currentIndex = array.length, randomIndex;
+                while (currentIndex != 0) {
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+                    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+                }
+                return array;
+            };
+
+            const setupBoard = useCallback(() => {
+                let rawItems = [];
+                let idCounter = 0;
+                const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+                const numbers = Array.from({ length: 26 }, (_, i) => i + 1);
+
+                const itemsToCreate = [];
+                alphabet.forEach(char => itemsToCreate.push({ type: 'letter', value: char }));
+                numbers.forEach(num => itemsToCreate.push({ type: 'number', value: num }));
+
+                itemsToCreate.forEach(item => {
+                    rawItems.push({ ...item, id: idCounter++, color: 'black' });
+                    rawItems.push({ ...item, id: idCounter++, color: 'blue' });
+                });
+
+                const shuffledItems = shuffleArray(rawItems);
+
+                const styledItems = [];
+                const placedCoreBoxes = []; 
+
+                const itemWidthPercent = 5.5; 
+                const itemHeightPercent = 9.0;
+                const coreBoxWidthPercent = 4.5; 
+                const coreBoxHeightPercent = 7.0; 
+
+                const checkCollision = (boxA, boxB) => (
+                    boxA.x < boxB.x + boxB.width &&
+                    boxA.x + boxA.width > boxB.x &&
+                    boxA.y < boxB.y + boxB.height &&
+                    boxA.y + boxA.height > boxB.y
+                );
+
+                const numCols = 18;
+                const numRows = 6;
+                const cellWidth = 100 / numCols;
+                const cellHeight = 100 / numRows;
+                const verticalScale = 0.85;
+                const verticalOffset = (100 - (100 * verticalScale)) / 2;
+
+                shuffledItems.forEach((item, i) => {
+                    let isPlaced = false;
+                    let attempts = 0;
+                    
+                    const row = Math.floor(i / numCols);
+                    const col = i % numCols;
+                    const baseLeft = col * cellWidth;
+                    const baseTop = (row * cellHeight * verticalScale) + verticalOffset;
+
+                    while (!isPlaced && attempts < 200) { 
+                        let left = baseLeft + (Math.random() * cellWidth);
+                        let top = baseTop + (Math.random() * cellHeight);
+
+                        left = Math.min(left, 100 - itemWidthPercent);
+                        top = Math.min(top, 100 - itemHeightPercent);
+
+                        const candidateCoreBox = {
+                            x: left + (itemWidthPercent - coreBoxWidthPercent) / 2,
+                            y: top + (itemHeightPercent - coreBoxHeightPercent) / 2,
+                            width: coreBoxWidthPercent,
+                            height: coreBoxHeightPercent,
+                        };
+
+                        let hasCollision = placedCoreBoxes.some(placedBox => checkCollision(candidateCoreBox, placedBox));
+
+                        if (!hasCollision) {
+                            placedCoreBoxes.push(candidateCoreBox);
+                            styledItems.push({
+                                ...item,
+                                style: {
+                                    top: `${top}%`,
+                                    left: `${left}%`,
+                                    transform: `rotate(${(Math.random() * 16) - 8}deg)`,
+                                    zIndex: i,
+                                },
+                            });
+                            isPlaced = true;
+                        }
+                        attempts++;
+                    }
+                });
+                
+                setBoardItems(styledItems);
+            }, []);
+
+            useEffect(() => {
+                setupBoard();
+            }, [setupBoard]);
+
+            const startRound = useCallback(() => {
+                if (shuffleRef.current) {
+                    setupBoard();
+                }
+                if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+                const currentWordList = wordLists[language]?.[difficulty] || wordLists.en[difficulty];
+                const newWord = currentWordList[Math.floor(Math.random() * currentWordList.length)].toUpperCase();
+                
+                setCurrentWord(newWord);
+                setPlayerSequence([]);
+                setCurrentStepIndex(0);
+                setResult(null);
+                setIncorrectClickId(null);
+                setLastCorrectClickId(null);
+                setSumInput('');
+                setShowHint(false);
+                setGameState('presentingWord');
+
+                timeoutRef.current = setTimeout(() => setGameState('playerTurn'), 2000);
+
+            }, [language, difficulty, setupBoard]);
+
+            const resetGame = useCallback(() => {
+                if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                setScore(0);
+                setRoundsPlayed(0);
+                setResult(null);
+                setCurrentWord('');
+                setGameState('idle');
+                setupBoard();
+            }, [setupBoard]);
+            
+            const handleItemClick = (clickedItem) => {
+                if (gameState !== 'playerTurn' || lastCorrectClickId || incorrectClickId) return;
+
+                const expected = getExpectedProperties();
+                if (!expected) return;
+
+                const isTypeCorrect = clickedItem.type === expected.type;
+                const isValueCorrect = clickedItem.value == expected.value;
+                const isColorCorrect = (expected.color === 'any') || (clickedItem.color === expected.color);
+
+                if (isTypeCorrect && isValueCorrect && isColorCorrect) {
+                    setLastCorrectClickId(clickedItem.id);
+                    setTimeout(() => setLastCorrectClickId(null), 400);
+
+                    setPlayerSequence(prev => [...prev, clickedItem]);
+                    const nextStep = currentStepIndex + 1;
+                    setCurrentStepIndex(nextStep);
+                    setShowHint(false);
+
+                    if (nextStep >= currentWord.length * 2) {
+                        if (askForSum) {
+                            setGameState('askingForSum');
+                            setSumTriesLeft(3);
+                        } else {
+                            endRound(true);
+                        }
+                    }
+                } else {
+                    setIncorrectClickId(clickedItem.id);
+                    setTimeout(() => setIncorrectClickId(null), 500);
+                }
+            };
+
+            const handleSumCheck = () => {
+                const correctSum = playerSequence
+                    .filter(item => item.type === 'number')
+                    .reduce((sum, item) => sum + item.value, 0);
+
+                const playerSum = parseInt(sumInput, 10);
+
+                if (playerSum === correctSum) {
+                    endRound(true);
+                } else {
+                    const newTriesLeft = sumTriesLeft - 1;
+                    setSumTriesLeft(newTriesLeft);
+                    setIsSumInputIncorrect(true);
+                    setTimeout(() => setIsSumInputIncorrect(false), 500);
+                    setSumInput('');
+
+                    if (newTriesLeft <= 0) {
+                        endRound(false, { correct: correctSum, player: playerSum });
+                    }
+                }
+            };
+            
+            const endRound = (success, sumResult = null) => {
+                setGameState('showingResult');
+                if (success) {
+                    setScore(prev => prev + 1);
+                }
+                setRoundsPlayed(prev => prev + 1);
+                
+                const resultData = { success };
+                if (!success) {
+                    resultData.correctAnswer = currentWord;
+                }
+                if (sumResult) {
+                    resultData.sumResult = sumResult;
+                }
+                setResult(resultData);
+
+                timeoutRef.current = setTimeout(startRound, 3000);
+            };
+
+            const handleSettingChange = (setter, valueFn) => {
+                setter(valueFn);
+                setScore(0);
+                setRoundsPlayed(0);
+                startRound();
+            };
+            
+            const getExpectedProperties = () => {
+                if (!currentWord || currentStepIndex >= currentWord.length * 2) return null;
+
+                const isLetterStep = currentStepIndex % 2 === 0;
+                const charIndex = Math.floor(currentStepIndex / 2);
+                const char = currentWord[charIndex];
+
+                const expectedType = isLetterStep ? 'letter' : 'number';
+                const expectedValue = isLetterStep ? char : char.charCodeAt(0) - 64;
+
+                let expectedColor = 'any';
+
+                switch (activeColorRuleId) {
+                    case 'allBlack':
+                        expectedColor = 'black';
+                        break;
+                    case 'allBlue':
+                        expectedColor = 'blue';
+                        break;
+                    case 'custom':
+                        const typeKey = isLetterStep ? 'letter' : 'number';
+                        const patternSteps = customRule[typeKey];
+                        const firstStep = patternSteps[0];
+                        const secondStep = patternSteps[1];
+                        const totalStepsInPattern = firstStep.steps + secondStep.steps;
+                        if (totalStepsInPattern > 0) {
+                            const stepInPattern = charIndex % totalStepsInPattern;
+                            expectedColor = stepInPattern < firstStep.steps ? firstStep.color : secondStep.color;
+                        }
+                        break;
+                }
+                return { type: expectedType, value: expectedValue, color: expectedColor };
+            };
+
+            useEffect(() => { setCookie('cognitiveGameLang', language); }, [language]);
+            useEffect(() => { setCookie('cognitiveGameDifficulty', difficulty); }, [difficulty]);
+            useEffect(() => { setCookie('cognitiveGameColorRule', activeColorRuleId); }, [activeColorRuleId]);
+            useEffect(() => { setCookie('cognitiveGameSum', askForSum); }, [askForSum]);
+            useEffect(() => { setCookie('cognitiveGameShuffle', shouldShufflePerRound); }, [shouldShufflePerRound]);
+
+            // If a mobile device is detected, show the warning and stop rendering the game.
+            if (isMobileDevice) {
+                return React.createElement(MobileWarning, { t, language });
+            }
+
+            const renderGameArea = () => {
+                switch (gameState) {
+                    case 'presentingWord':
+                        return React.createElement('div', { className: 'text-center' }, [
+                            React.createElement('h2', { key: 'prompt', className: 'text-3xl text-gray-500 mb-4' }, t.spellTheWord),
+                            React.createElement('div', { key: 'word', className: 'text-7xl font-bold text-blue-600 tracking-widest' }, currentWord)
+                        ]);
+                    
+                    case 'playerTurn':
+                    case 'askingForSum':
+                        const currentLetterIndex = Math.floor(currentStepIndex / 2);
+
+                        const promptContent = () => {
+                            const expected = getExpectedProperties();
+                            if (showHint && expected) {
+                                const colorText = expected.color === 'black' ? t.black : t.blue;
+                                const typeText = expected.type === 'letter' ? t.letter : t.number;
+                                let hint;
+
+                                if (language === 'nl') {
+                                    const article = expected.type === 'letter' ? 'de' : 'het';
+                                    hint = `${t.hintPrompt} ${article} ${colorText} ${typeText} "${expected.value}"`;
+                                } else {
+                                    hint = `${t.hintPrompt} ${colorText} ${typeText} "${expected.value}"`;
+                                }
+
+                                return React.createElement('h3', { className: 'text-xl sm:text-2xl font-semibold text-gray-700' }, hint);
+                            }
+                            if (isWordPermanentlyVisible) {
+                                return React.createElement('div', { className: 'text-3xl sm:text-4xl font-bold tracking-widest' },
+                                    currentWord.split('').map((char, index) =>
+                                        React.createElement('span', {
+                                            key: index,
+                                            className: index === currentLetterIndex ? 'text-blue-600' : 'text-gray-400'
+                                        }, char)
+                                    )
+                                );
+                            }
+                            return null;
+                        };
+
+                        return React.createElement('div', { className: 'w-full flex-1 flex flex-col items-center p-2 overflow-hidden' }, [
+                            React.createElement('div', { key: 'prompt-bar', className: 'w-full max-w-4xl text-center p-2 bg-gray-100 rounded-lg mb-2 h-16 flex items-center justify-center' },
+                                promptContent()
+                            ),
+                            React.createElement('div', { key: 'board', className: 'w-full max-w-5xl flex-1 relative mb-12' },
+                                boardItems.map(item => {
+                                    const isIncorrect = item.id === incorrectClickId;
+                                    const isLastCorrect = item.id === lastCorrectClickId;
+                                    const colorClasses = item.color === 'black' ? 'bg-white text-black' : 'bg-white text-blue-500';
+                                    const itemClasses = `post-it w-14 h-14 flex items-center justify-center font-bold text-2xl sm:text-3xl rounded-md cursor-pointer border-2 border-transparent
+                                        ${colorClasses}
+                                        ${isIncorrect ? 'incorrect' : ''}
+                                        ${isLastCorrect ? 'flash-correct' : ''}
+                                        ${gameState !== 'playerTurn' ? 'opacity-50 cursor-not-allowed' : ''}
+                                    `;
+                                    return React.createElement('button', {
+                                        key: item.id,
+                                        className: itemClasses,
+                                        style: item.style,
+                                        onClick: () => handleItemClick(item),
+                                        disabled: gameState !== 'playerTurn' || lastCorrectClickId
+                                    }, item.value);
+                                })
+                            ),
+                            gameState === 'askingForSum' && React.createElement('div', { key: 'sum-input', className: 'mt-4 flex flex-col items-center gap-2' }, [
+                                React.createElement('label', { className: 'text-xl font-semibold' }, t.whatIsTheSum),
+                                React.createElement('input', {
+                                    type: 'number',
+                                    value: sumInput,
+                                    onChange: (e) => setSumInput(e.target.value),
+                                    onKeyDown: e => e.key === 'Enter' && handleSumCheck(),
+                                    className: `w-48 h-16 text-4xl text-center rounded-lg border-2 border-gray-300 focus:border-blue-500 outline-none ${isSumInputIncorrect ? 'incorrect' : ''}`
+                                }),
+                                React.createElement('div', { key: 'tries-left', className: 'h-6 text-red-500 font-semibold' },
+                                    (sumTriesLeft < 3 && sumTriesLeft > 0) && `${sumTriesLeft} ${sumTriesLeft === 1 ? t.tryLeft : t.triesLeft}`
+                                ),
+                                React.createElement('button', { onClick: handleSumCheck, className: 'px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-500' }, t.checkAnswer)
+                            ])
+                        ]);
+
+                    case 'showingResult':
+                        return React.createElement('div', { className: 'flex flex-col items-center text-center' },
+                            result.success
+                                ? React.createElement(CheckIcon, { className: 'text-green-500 w-24 h-24 mb-4' })
+                                : React.createElement(XCircleIcon, { className: 'text-red-500 w-24 h-24 mb-4' }),
+                            React.createElement('h2', { className: `text-4xl font-bold ${result.success ? 'text-green-600' : 'text-red-600'}` },
+                                result.success ? t.correct : t.wrong
+                            ),
+                            !result.success && React.createElement('div', { className: 'mt-4 text-lg' }, `${t.correctAnswer}: ${result.correctAnswer}`),
+                            result.sumResult && !result.sumResult.success && React.createElement('div', { className: 'mt-4 text-lg space-y-1' }, [
+                                React.createElement('p', { key: 'your' }, `${t.yourAnswer}: ${result.sumResult.player}`),
+                                React.createElement('p', { key: 'correct' }, `${t.correctAnswer}: ${result.sumResult.correct}`),
+                            ])
+                        );
+
+                    case 'idle':
+                    default:
+                        return React.createElement('div', { className: "text-center" }, [
+                            React.createElement('h2', { key: 'title', className: "text-4xl font-bold mb-2 text-gray-800" }, t.title),
+                            React.createElement('p', { key: 'description', className: "text-gray-500 max-w-md mx-auto mb-8" }, t.description),
+                            React.createElement('button', { key: 'start', onClick: startRound, className: "px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-500 transition-colors text-xl shadow-lg" }, t.startGame),
+                            React.createElement('div', { key: 'signature', className: "fixed bottom-4 left-0 right-0 text-center text-xs text-gray-400 opacity-80 z-10", style: { paddingBottom: 'env(safe-area-inset-bottom, 0px)' } }, "© 2025 Valentijn Leenaers")
+                        ]);
+                }
+            };
+            
+            const HelpModal = () => {
+                const HelpItem = ({ icons, title, description }) => React.createElement('div', { className: 'flex flex-col sm:flex-row items-start gap-3 sm:gap-6 p-3 bg-gray-50 rounded-lg' }, [
+                    React.createElement('div', { className: 'flex items-center justify-center gap-2 h-10 text-gray-600 shrink-0 sm:w-20' }, icons),
+                    React.createElement('div', {}, [
+                        React.createElement('h4', { className: 'font-semibold text-gray-800' }, title),
+                        React.createElement('p', { className: 'text-gray-600 text-sm' }, description)
+                    ])
+                ]);
+
+                const helpItems = [
+                    { icons: [React.createElement(ListOrderedIcon)], title: t.helpGamePlay, description: t.helpGamePlayDesc },
+                    { icons: [React.createElement('span', {className: 'text-sm font-semibold' }, t.difficultyEasy)], title: t.helpDifficultyLevels, description: t.helpDifficultyLevelsDesc },
+                    { icons: [React.createElement(SlidersIcon)], title: t.helpColorRule, description: t.helpColorRuleDesc },
+                    { icons: [React.createElement(SigmaIcon)], title: t.helpSumChallenge, description: t.helpSumChallengeDesc },
+                    { icons: [React.createElement(ShuffleIcon)], title: t.helpShuffle, description: t.helpShuffleDesc },
+                    { icons: [React.createElement(EyeIcon)], title: t.helpShowWord, description: t.helpShowWordDesc },
+                    { icons: [React.createElement(LightbulbIcon)], title: t.helpShowHint, description: t.helpShowHintDesc },
+                    { icons: [React.createElement(SettingsIcon)], title: t.helpMainSettings, description: t.helpMainSettingsDesc }
+                ];
+
+                return React.createElement('div', { className: "absolute inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center", onClick: () => setShowHelp(false) },
+                    React.createElement('div', { className: 'bg-white w-full h-full overflow-y-auto p-6 z-50 sm:h-auto sm:max-h-[90vh] sm:rounded-xl sm:shadow-2xl sm:max-w-2xl', onClick: e => e.stopPropagation() }, [
+                        React.createElement('div', { key: 'stitle', className: 'flex justify-between items-center' }, [
+                            React.createElement('h2', { className: 'text-2xl font-bold text-gray-800' }, t.helpTitle),
+                            React.createElement('button', { onClick: () => setShowHelp(false), className: 'p-2 rounded-full hover:bg-gray-100' }, React.createElement(XIcon))
+                        ]),
+                        React.createElement('p', { className: 'text-gray-600 mt-2 mb-6' }, t.helpDesc),
+                        React.createElement('div', { className: 'space-y-4' }, 
+                            helpItems.map((item, index) => React.createElement(HelpItem, { key: index, ...item }))
+                        )
+                    ])
+                );
+            };
+
+            const ColorRulePopover = ({ t, language, buttonRef, activeRules, activeRuleId, customRule, onSelect, onCustomChange, onOrderSwap, onClose }) => {
+                const popoverRef = useRef(null);
+
+                let previewSequence = [];
+                if (activeRuleId === 'custom') {
+                    for (let i = 0; i < 12; i++) {
+                        const isLetterStep = i % 2 === 0;
+                        const charIndex = Math.floor(i / 2);
+                        const typeKey = isLetterStep ? 'letter' : 'number';
+                        const patternSteps = customRule[typeKey];
+                        const firstStep = patternSteps[0];
+                        const secondStep = patternSteps[1];
+                        const totalStepsInPattern = firstStep.steps + secondStep.steps;
+                        let itemColor = 'black';
+                        if (totalStepsInPattern > 0) {
+                            const stepInPattern = charIndex % totalStepsInPattern;
+                            itemColor = stepInPattern < firstStep.steps ? firstStep.color : secondStep.color;
+                        }
+                        previewSequence.push({ char: isLetterStep ? 'L' : 'N', color: itemColor });
+                    }
+                }
+
+                useEffect(() => {
+                    const handleClickOutside = (event) => {
+                        if (
+                            popoverRef.current && !popoverRef.current.contains(event.target) &&
+                            buttonRef.current && !buttonRef.current.contains(event.target)
+                        ) {
+                            onClose();
+                        }
+                    };
+                    document.addEventListener("mousedown", handleClickOutside);
+                    return () => document.removeEventListener("mousedown", handleClickOutside);
+                }, [popoverRef, buttonRef, onClose]);
+
+                const renderInputRow = (pattern, index, type) => {
+                    const blackText = language === 'nl' ? 'Zwart' : 'Black';
+                    const blueText = language === 'nl' ? 'Blauw' : 'Blue';
+                    return React.createElement('div', { key: index, className: 'flex items-center justify-start gap-2' }, [
+                        React.createElement('span', { className: `w-16 text-center text-sm font-semibold rounded px-2 py-1 ${pattern.color === 'black' ? 'bg-gray-800 text-white' : 'bg-blue-500 text-white'}`}, pattern.color === 'black' ? blackText : blueText),
+                        React.createElement('input', { type: 'number', min: '0', max: '10', value: pattern.steps, onChange: e => onCustomChange(type, index, parseInt(e.target.value, 10)), className: 'w-12 p-1 text-center border border-gray-300 rounded-md'})
+                    ]);
+                };
+
+                const renderInputColumn = (type) => React.createElement('div', { key: type, className: 'flex-1 flex flex-col' }, [
+                    React.createElement('h4', { className: 'text-center font-bold text-gray-700 mb-2' }, type === 'letter' ? t.letter.charAt(0).toUpperCase() + t.letter.slice(1) : t.number.charAt(0).toUpperCase() + t.number.slice(1)),
+                    renderInputRow(customRule[type][0], 0, type),
+                    React.createElement('div', { className: 'flex justify-center py-1' }, React.createElement('button', { onClick: () => onOrderSwap(type), className: 'p-1.5 rounded-full hover:bg-gray-200 text-gray-400 hover:text-gray-800 transition-colors', title: 'Swap Order'}, React.createElement(SwitchVerticalIcon))),
+                    renderInputRow(customRule[type][1], 1, type)
+                ]);
+
+                return React.createElement('div', { ref: popoverRef, className: 'absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-20 p-3 space-y-3' }, [
+                    React.createElement('div', { key: 'presets', className: 'flex gap-2' }, activeRules.map(rule => React.createElement('button', { key: rule.id, onClick: () => onSelect(rule.id), className: `flex-1 text-center px-3 py-2 text-sm rounded-md transition-colors ${activeRuleId === rule.id ? 'bg-blue-600 text-white font-semibold' : 'bg-gray-100 hover:bg-gray-200'}`}, rule.name))),
+                    activeRuleId === 'custom' && React.createElement('div', { key: 'custom-grid', className: 'pt-3 mt-2 border-t border-gray-200' }, [
+                        React.createElement('div', { className: 'flex gap-4' }, [renderInputColumn('letter'), renderInputColumn('number')]),
+                        React.createElement('div', { key: 'preview', className: 'pt-3 mt-3 border-t border-gray-100' }, [
+                            React.createElement('h5', { key: 'preview-title', className: 'text-center text-xs font-bold text-gray-400 uppercase tracking-wider mb-2' }, t.examplePattern),
+                            React.createElement('div', { key: 'preview-items', className: 'flex flex-wrap justify-center gap-1.5' }, previewSequence.map((item, index) => React.createElement('span', { key: index, className: `w-7 h-7 flex items-center justify-center text-sm font-bold rounded-md ${item.color === 'black' ? 'bg-gray-800 text-white' : 'bg-blue-500 text-white'}`}, item.char)))
+                        ])
+                    ])
+                ]);
+            };
+        
+            return React.createElement('div', { className: "min-h-screen bg-gray-50 text-gray-800 flex flex-col" }, [
+                React.createElement('div', { key: 'header', className: "p-4 bg-white flex justify-between items-center border-b border-gray-200" }, [
+                    React.createElement('a', { href: `../index.html?lang=${language}`, className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(HomeIcon)),
+                    React.createElement('div', { key: 'scores', className: "flex gap-4 items-center text-base sm:text-lg" }, [
+                        React.createElement('div', { key: 'score' }, [React.createElement('span', { className: "font-bold text-blue-600" }, `${t.score}: `), `${score}`]),
+                        React.createElement('div', { key: 'round' }, [React.createElement('span', { className: "font-bold text-gray-500" }, `${t.round}: `), `${roundsPlayed}`]),
+                    ]),
+                    React.createElement('div', { key: 'controls', className: "flex gap-2" }, [
+                        React.createElement('button', { key: 'settings', onClick: () => setShowSettings(true), className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(SettingsIcon)),
+                        React.createElement('button', { key: 'reset', onClick: resetGame, className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(RotateCcwIcon, {})),
+                        React.createElement('button', { key: 'play', onClick: startRound, disabled: gameState !== 'idle' && gameState === 'playerTurn', className: "p-2 rounded-lg transition-colors bg-green-500 hover:bg-green-400 text-white disabled:bg-gray-300" }, React.createElement(PlayIcon))
+                    ])
+                ]),
+                
+                React.createElement('div', { key: 'quick-controls', className: 'p-2 bg-white border-b border-gray-200 flex flex-wrap items-center justify-center gap-2 text-sm' }, [
+                    React.createElement('div', { className: 'flex-grow flex items-center justify-center gap-2' }, [
+                        React.createElement('button', {
+                            onClick: () => handleSettingChange(setDifficulty, d => d === 'easy' ? 'medium' : d === 'medium' ? 'hard' : 'easy'),
+                            className: `h-10 px-4 rounded-lg font-semibold transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200`
+                        }, t[`difficulty${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`]),
+                        React.createElement('div', { className: 'relative' }, [
+                            React.createElement('button', {
+                                ref: colorPopoverButtonRef,
+                                onClick: () => setIsColorPopoverOpen(p => !p),
+                                className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${isColorPopoverOpen ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
+                                title: "Change Color Rule"
+                            }, React.createElement(SlidersIcon)),
+
+                            isColorPopoverOpen && React.createElement(ColorRulePopover, {
+                                t: t,
+                                language: language,
+                                buttonRef: colorPopoverButtonRef,
+                                activeRules: activeRules,
+                                activeRuleId: activeColorRuleId,
+                                customRule: customRule,
+                                onSelect: (ruleId) => {
+                                    setActiveColorRuleId(ruleId);
+                                    if (ruleId !== 'custom') {
+                                        setIsColorPopoverOpen(false);
+                                    }
+                                },
+                                onCustomChange: (type, index, value) => {
+                                    if (!isNaN(value) && value >= 0 && value <= 10) {
+                                        setCustomRule(p => {
+                                            const newPattern = [...p[type]];
+                                            newPattern[index] = { ...newPattern[index], steps: value };
+                                            return { ...p, [type]: newPattern };
+                                        });
+                                    }
+                                },
+                                onOrderSwap: (type) => {
+                                    setCustomRule(p => ({
+                                        ...p,
+                                        [type]: [p[type][1], p[type][0]]
+                                    }));
+                                },
+                                onClose: () => setIsColorPopoverOpen(false)
+                            })
+                        ]),
+                        React.createElement('button', {
+                            onClick: () => setAskForSum(p => !p),
+                            className: `h-10 w-10 flex items-center justify-center rounded-lg font-bold text-xl transition-colors ${askForSum ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
+                            title: askForSum ? t.sumChallengeOn : t.sumChallengeOff
+                        }, React.createElement(SigmaIcon)),
+                        React.createElement('button', {
+                            onClick: () => setShouldShufflePerRound(p => !p),
+                            className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${shouldShufflePerRound ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
+                            title: "Shuffle board each round"
+                        }, React.createElement(ShuffleIcon)),
+                        React.createElement('button', {
+                            onClick: () => setIsWordPermanentlyVisible(p => !p),
+                            className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${isWordPermanentlyVisible ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`
+                        }, isWordPermanentlyVisible ? React.createElement(EyeIcon) : React.createElement(EyeOffIcon)),
+                        React.createElement('button', {
+                            onClick: () => setShowHint(p => !p),
+                            disabled: gameState !== 'playerTurn',
+                            className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors bg-yellow-100 text-yellow-600 hover:bg-yellow-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed`
+                        }, React.createElement(LightbulbIcon)),
+                    ]),
+                    // This is the new help button, now at the end of the bar
+                    React.createElement('button', { 
+                        onClick: () => setShowHelp(true), 
+                        className: 'h-10 px-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors flex-shrink-0' 
+                    }, React.createElement(InfoIcon))
+                ]),
+                
+                React.createElement('main', { key: 'game-area', className: `${(gameState === 'playerTurn' || gameState === 'askingForSum') ? 'flex-1 flex flex-col' : 'flex-1 flex justify-center items-center'} ${(showSettings || showHelp || isColorPopoverOpen) ? 'relative z-0' : ''}`.trim() }, renderGameArea()),
+                
+                showSettings && React.createElement('div', { className: "absolute inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center p-4", onClick: () => setShowSettings(false) }, 
+                    React.createElement('div', { className: 'bg-white rounded-xl shadow-2xl w-full max-w-lg m-4 p-6 space-y-6 z-50', onClick: e => e.stopPropagation() }, [
+                        React.createElement('div', { key: 'stitle', className: 'flex justify-between items-center' }, [
+                            React.createElement('h2', { className: 'text-2xl font-bold text-gray-800' }, t.settingsTitle),
+                            React.createElement('button', { onClick: () => setShowSettings(false), className: 'p-2 rounded-full hover:bg-gray-100' }, React.createElement(XIcon))
+                        ]),
+                        React.createElement('div', { key: 's-lang', className: 'space-y-4 p-4 border border-gray-200 rounded-lg' }, [
+                            React.createElement('h3', { className: 'font-semibold text-lg text-gray-700' }, t.language),
+                            React.createElement('div', { className: 'flex gap-2' }, [
+                                React.createElement('button', { onClick: () => handleLanguageChange('nl'), className: `px-4 py-2 rounded-lg transition-colors text-2xl ${language === 'nl' ? 'bg-blue-100 border-2 border-blue-400' : 'bg-gray-100 border-2 border-transparent'}` }, '🇳🇱'),
+                                React.createElement('button', { onClick: () => handleLanguageChange('en'), className: `px-4 py-2 rounded-lg transition-colors text-2xl ${language === 'en' ? 'bg-blue-100 border-2 border-blue-400' : 'bg-gray-100 border-2 border-transparent'}` }, '🇬🇧')
+                            ])
+                        ])
+                    ])
+                ),
+
+                (gameState === 'playerTurn' || gameState === 'askingForSum') && React.createElement('button', {
+                    key: 'skip-button',
+                    onClick: startRound,
+                    title: "Skip Round",
+                    className: "fixed bottom-6 right-6 z-30 flex items-center bg-gray-200 text-gray-700 font-semibold rounded-lg px-4 py-3 shadow-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-transform transform hover:scale-110"
+                }, [
+                    React.createElement('span', { key: 'skip-text', className: 'mr-2' }, 'Skip'),
+                    React.createElement(FastForwardIcon, { key: 'skip-icon' })
+                ]),
+                
+                showHelp && React.createElement(HelpModal)
+            ].filter(Boolean));
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(CognitiveSpellingGame));
+    </script>
+</body>
+</html>
