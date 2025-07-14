@@ -117,6 +117,16 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Function to get language from URL
+            function getLangFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const lang = urlParams.get('lang');
+                if (lang === 'en' || lang === 'nl') {
+                    return lang;
+                }
+                return null;
+            }
+
             const translations = {
                 nl: {
                     title: "Val's Spelletjes Hub",
@@ -201,9 +211,9 @@
             langNlBtn.addEventListener('click', () => setLanguage('nl'));
             langEnBtn.addEventListener('click', () => setLanguage('en'));
 
-            // Set initial language based on storage or default to Dutch
-            const savedLang = localStorage.getItem('gameHubLang') || 'nl';
-            setLanguage(savedLang);
+            // Set initial language based on URL, then storage, or default to Dutch
+            const initialLang = getLangFromURL() || localStorage.getItem('gameHubLang') || 'nl';
+            setLanguage(initialLang);
         });
     </script>
 </body>
