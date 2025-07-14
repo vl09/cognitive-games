@@ -125,6 +125,7 @@
             })
         ]);
         const HomeIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }), React.createElement('polyline', { points: "9 22 9 12 15 12 15 22" })]);
+        const FastForwardIcon = () => React.createElement('svg', { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('polygon', { key: 1, points: "13 19 22 12 13 5 13 19" }), React.createElement('polygon', { key: 2, points: "2 19 11 12 2 5 2 19" })]);
 
 
         // --- Progress Dots Component ---
@@ -183,6 +184,8 @@
                 difficultyEasy: "Easy",
                 difficultyMedium: "Medium",
                 difficultyHard: "Hard",
+                skip: "Skip",
+                skipRound: "Skip Round",
                 helpTitle: "How to Play",
                 helpDesc: "Change settings using the buttons below. Changing a setting will restart the game.",
                 helpNumDigits: "Number of Digits",
@@ -230,6 +233,8 @@
                 difficultyEasy: "Makkelijk",
                 difficultyMedium: "Gemiddeld",
                 difficultyHard: "Moeilijk",
+                skip: "Skip",
+                skipRound: "Skip Round",
                 helpTitle: "Spelinstructies",
                 helpDesc: "Wijzig instellingen met de knoppen hieronder. Het wijzigen van een instelling herstart het spel.",
                 helpNumDigits: "Aantal Cijfers",
@@ -1021,6 +1026,16 @@
                 ]),
 
                 React.createElement('div', { key: 'game-area', className: `flex-1 flex justify-center ${isMobile ? 'items-start pt-12' : 'items-center'}` }, renderGameArea()),
+                
+                gameState === 'waiting_for_input' && React.createElement('button', {
+                    key: 'skip-button',
+                    onClick: startRound,
+                    title: t.skipRound,
+                    className: "fixed bottom-6 right-6 z-30 flex items-center bg-gray-200 text-gray-700 font-semibold rounded-lg px-4 py-3 shadow-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-transform transform hover:scale-110"
+                }, [
+                    React.createElement('span', { key: 'skip-text', className: 'mr-2' }, t.skip),
+                    React.createElement(FastForwardIcon, { key: 'skip-icon' })
+                ]),
                 
                 showHelpModal && React.createElement(HelpModalContent),
 
