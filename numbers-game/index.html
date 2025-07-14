@@ -32,6 +32,21 @@
             height: 100vh;
             width: 100vw;
         }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .input-correct {
+            background-color: #f0fdf4; /* Tailwind green-50 */
+            border-color: #22c55e; /* Tailwind green-500 */
+            color: #15803d;      /* Tailwind green-700 */
+            font-weight: 700;
+        }
+        .input-incorrect {
+            border-color: #ef4444; /* Tailwind red-500 */
+            animation: shake 0.5s;
+        }
     </style>
 </head>
 <body>
@@ -157,6 +172,8 @@
                 checkAnswer: "Check Answer",
                 correct: "Correct!",
                 wrong: "Wrong!",
+                tryLeft: "more try",
+                triesLeft: "more tries",
                 yourAnswer: "Your Answer",
                 correctAnswer: "Correct Answer",
                 settingsTitle: "Settings",
@@ -202,6 +219,8 @@
                 checkAnswer: "Controleer Antwoord",
                 correct: "Correct!",
                 wrong: "Fout!",
+                tryLeft: "poging over",
+                triesLeft: "pogingen over",
                 yourAnswer: "Jouw Antwoord",
                 correctAnswer: "Juiste Antwoord",
                 settingsTitle: "Instellingen",
@@ -259,6 +278,8 @@
             const [availableVoices, setAvailableVoices] = useState([]);
             const [sequenceColors, setSequenceColors] = useState([]);
             const [activeInputIndex, setActiveInputIndex] = useState(null);
+            const [triesLeft, setTriesLeft] = useState(3);
+            const [inputStatus, setInputStatus] = useState([]);
 
             // --- Settings State ---
             const [language, setLanguage] = useState(() => getLangFromURL() || getCookie('numGameLang') || 'nl');
@@ -314,10 +335,13 @@
                 setPresentationIndex(null);
                 setShowTransformPopover(false);
                 setShowGameModePopover(false);
+                setTriesLeft(3);
+                setInputStatus(Array(Number(numDigits)).fill('pending'));
             }, [numDigits]);
 
             useEffect(() => {
                 setPlayerInput(Array(Number(numDigits)).fill(''));
+                setInputStatus(Array(Number(numDigits)).fill('pending'));
                 inputRefs.current = inputRefs.current.slice(0, numDigits);
             }, [numDigits]);
             
@@ -457,6 +481,8 @@
                 synthRef.current.cancel();
                 setIsPaused(false);
                 setPlayerInput(Array(Number(numDigits)).fill(''));
+                setTriesLeft(3);
+                setInputStatus(Array(Number(numDigits)).fill('pending'));
                 setResult(null);
                 const newSequence = generateSequence();
                 setCurrentSequence(newSequence);
@@ -520,21 +546,51 @@
             const checkAnswer = useCallback(() => {
                 const expected = getExpectedAnswer(currentSequence);
                 const normalizedPlayerInput = playerInput.map(val => String(Number(val)));
-                const isCorrect = JSON.stringify(normalizedPlayerInput) === JSON.stringify(expected);
-                
-                setResult({ success: isCorrect, correct: expected, player: playerInput });
-                if (isCorrect) setScore(prev => prev + 1);
-                setRoundsPlayed(prev => prev + 1);
-                setGameState('showing_result');
-                    
-                // Calculate a dynamic delay based on the number of digits
-                const baseDelay = 2500; // 2.5 seconds base time
-                const timePerDigit = 200; // Add 200ms extra per digit
-                const resultScreenDelay = baseDelay + (numDigits * timePerDigit);
 
-                timeoutRef.current = setTimeout(startRound, resultScreenDelay);
-                    
-            }, [playerInput, currentSequence, gameMode, transformValue]);
+                let newStatus = [];
+                let isFullyCorrect = true;
+
+                for (let i = 0; i < numDigits; i++) {
+                    if (normalizedPlayerInput[i] === expected[i]) {
+                        newStatus[i] = 'correct';
+                    } else {
+                        newStatus[i] = 'incorrect';
+                        isFullyCorrect = false;
+                    }
+                }
+
+                if (isFullyCorrect) {
+                    setInputStatus(newStatus);
+                    setResult({ success: true, correct: expected, player: playerInput });
+                    setScore(prev => prev + 1);
+                    setRoundsPlayed(prev => prev + 1);
+                    setGameState('showing_result');
+                    const resultScreenDelay = 2500 + (numDigits * 200);
+                    timeoutRef.current = setTimeout(startRound, resultScreenDelay);
+                } else {
+                    const newTriesLeft = triesLeft - 1;
+                    setTriesLeft(newTriesLeft);
+
+                    if (newTriesLeft <= 0) {
+                        setResult({ success: false, correct: expected, player: playerInput });
+                        setRoundsPlayed(prev => prev + 1);
+                        setGameState('showing_result');
+                        const resultScreenDelay = 2500 + (numDigits * 200);
+                        timeoutRef.current = setTimeout(startRound, resultScreenDelay);
+                    } else {
+                        setInputStatus(newStatus);
+                        // Clear only the incorrect fields
+                        const nextPlayerInput = playerInput.map((val, i) => newStatus[i] === 'correct' ? val : '');
+                        setPlayerInput(nextPlayerInput);
+
+                        // Focus the first incorrect input
+                        const firstIncorrectIndex = newStatus.findIndex(s => s === 'incorrect');
+                        if (firstIncorrectIndex !== -1) {
+                            setTimeout(() => inputRefs.current[firstIncorrectIndex]?.focus(), 100);
+                        }
+                    }
+                }
+            }, [playerInput, currentSequence, gameMode, transformValue, numDigits, score, roundsPlayed, triesLeft]);
 
             const handleInputChange = (e, index) => {
                 const { value } = e.target;
@@ -637,33 +693,58 @@
                                     }
                                 }
                             },
-                                playerInput.map((value, index) =>
-                                    React.createElement('div', { key: index, className: 'flex flex-col items-center gap-2' }, [
+                                playerInput.map((value, index) => {
+                                    // --- FIX: This section is updated to correctly build the class string ---
+                                    const status = inputStatus[index];
+
+                                    // Base styles that apply to all inputs
+                                    const baseClasses = `${styles.boxSize} ${styles.textSize} font-semibold text-center border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition`;
+
+                                    let dynamicClasses = '';
+                                    switch (status) {
+                                        case 'correct':
+                                            // Use the green background/border and disable the input
+                                            dynamicClasses = 'input-correct';
+                                            break;
+                                        case 'incorrect':
+                                            // Use the red border/shake but keep the white background
+                                            dynamicClasses = 'input-incorrect bg-white text-gray-700';
+                                            break;
+                                        default:
+                                            // Default styles for a pending input
+                                            dynamicClasses = 'bg-white border-gray-300 text-gray-700';
+                                            break;
+                                    }
+
+                                    return React.createElement('div', { key: index, className: 'flex flex-col items-center gap-2' }, [
                                         React.createElement('input', {
                                             ref: el => inputRefs.current[index] = el,
-                                            type: "text", inputMode: "numeric", value: value,
-                                            onFocus: (e) => {
-                                                e.target.select();
-                                                setActiveInputIndex(index);
-                                            },
+                                            type: "text",
+                                            inputMode: "numeric",
+                                            value: value,
+                                            onFocus: (e) => { e.target.select(); setActiveInputIndex(index); },
                                             onChange: e => handleInputChange(e, index),
                                             onKeyDown: e => handleKeyDown(e, index),
-                                            className: `${styles.boxSize} ${styles.textSize} font-semibold text-center text-gray-700 bg-white border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition`
+
+                                            // Disable the input if the status is 'correct'
+                                            disabled: status === 'correct',
+                                            // Combine base and dynamic classes for the final result
+                                            className: `${baseClasses} ${dynamicClasses}`
                                         }),
                                         React.createElement('button', {
-                                            onMouseDown: (e) => {
-                                                e.preventDefault();
-                                                handleToggleSign(index);
-                                            },
+                                            onMouseDown: (e) => { e.preventDefault(); handleToggleSign(index); },
                                             className: `w-10 h-8 rounded-md bg-gray-200 text-gray-700 font-mono text-lg transition-opacity ${transformValue < 0 && activeInputIndex === index ? 'opacity-100' : 'opacity-0'}`,
                                             style: { pointerEvents: (transformValue < 0 && activeInputIndex === index) ? 'auto' : 'none' }
                                         }, '+/-')
                                     ])
-                                )
+                                })
+                            ),
+                            React.createElement('div', { key: 'tries-left', className: 'h-6 mt-4 text-red-500 font-semibold' },
+                                (triesLeft < 3 && triesLeft > 0) && `${triesLeft} ${triesLeft === 1 ? t.tryLeft : t.triesLeft}`
                             ),
                             React.createElement('button', {
                                 key: 'submit', onClick: checkAnswer,
-                                className: "mt-6 px-8 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-500 transition-colors text-lg shadow-md"
+                                className: "mt-2 px-8 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-500 transition-colors text-lg shadow-md"
                             }, t.checkAnswer)
                         ]);
                     }
