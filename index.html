@@ -23,84 +23,87 @@
             transform: scale(1.1);
             box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); /* blue-400 with opacity */
         }
+        /* Style to prevent content layout shift before JS loads */
+        [data-translate] {
+            min-height: 1.2em; /* Adjust as needed */
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900">
 
-    <div class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
-        <!-- Language Switcher -->
+     <div class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
         <div class="absolute top-4 right-4 flex gap-2">
             <button id="lang-nl" class="lang-btn p-2 rounded-full text-2xl transition-transform">🇳🇱</button>
             <button id="lang-en" class="lang-btn p-2 rounded-full text-2xl transition-transform">🇬🇧</button>
         </div>
 
-        <!-- Header Section -->
         <header class="text-center mb-10 sm:mb-16">
-            <h1 id="main-title" class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
-                <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-sky-500">
-                    Val's Spelletjes Hub
-                </span>
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
+                <span id="main-title" class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-sky-500">
+                    </span>
             </h1>
-            <p id="subtitle" class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
-                Een verzameling cognitieve spellen ontworpen door Valentijn Leenaers. Kies hieronder een spel om te beginnen.
-            </p>
+            <p id="subtitle" class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto" data-translate>
+                </p>
         </header>
 
-        <!-- Game Cards Grid -->
         <main class="w-full max-w-6xl">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
-                <!-- Game 1: Cognitive Spelling Game (mosaic-game) -->
                 <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
-                    <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/5e81ac/ffffff?text=A+B+C" alt="Cognitive Spelling Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/5e81ac/ffffff?text=Image+Not+Found';">
+                    <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/5e81ac/ffffff?text=A+B+C" alt="Lexi-Mosaic Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/5e81ac/ffffff?text=Image+Not+Found';">
                     <div class="p-6 flex-grow flex flex-col">
-                        <h2 id="game1-title" class="text-xl font-bold mb-2 text-slate-800">Cognitief Spelspel</h2>
-                        <p id="game1-desc" class="text-slate-600 text-sm flex-grow">Spel woorden door letters en cijfers in de juiste kleurenvolgorde te selecteren.</p>
+                        <h2 id="game1-title" class="text-xl font-bold mb-2 text-slate-800" data-translate></h2>
+                        <p id="game1-desc" class="text-slate-600 text-sm flex-grow" data-translate></p>
                         <div class="mt-6">
-                            <a href="./mosaic-game/index.html" id="game1-btn" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
-                                Speel Spel
+                            <a href="./mosaic-game/index.html" id="game1-btn" class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors" aria-label="Play Game 1">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="5 3 19 12 5 21"></polygon>
+                                </svg>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Game 2: Word Sum Game (word-game) -->
                 <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                     <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/bf616a/ffffff?text=A+%2B+1" alt="Word Sum Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/bf616a/ffffff?text=Image+Not+Found';">
                     <div class="p-6 flex-grow flex flex-col">
-                        <h2 id="game2-title" class="text-xl font-bold mb-2 text-slate-800">Woordsom Spel</h2>
-                        <p id="game2-desc" class="text-slate-600 text-sm flex-grow">Bereken de som van de letters in een woord, waarbij A=1, B=2, enzovoort.</p>
+                        <h2 id="game2-title" class="text-xl font-bold mb-2 text-slate-800" data-translate></h2>
+                        <p id="game2-desc" class="text-slate-600 text-sm flex-grow" data-translate></p>
                         <div class="mt-6">
-                           <a href="./word-game/index.html" id="game2-btn" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
-                                Speel Spel
+                           <a href="./word-game/index.html" id="game2-btn" class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors" aria-label="Play Game 2">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="5 3 19 12 5 21"></polygon>
+                                </svg>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Game 3: Number Sequence Memory (numbers-game) -->
                 <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                     <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/a3be8c/ffffff?text=1...2...3" alt="Number Sequence Memory Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/a3be8c/ffffff?text=Image+Not+Found';">
                     <div class="p-6 flex-grow flex flex-col">
-                        <h2 id="game3-title" class="text-xl font-bold mb-2 text-slate-800">Cijferreeks Geheugen</h2>
-                        <p id="game3-desc" class="text-slate-600 text-sm flex-grow">Onthoud een reeks cijfers en roep ze vervolgens terug volgens de spelmodus.</p>
+                        <h2 id="game3-title" class="text-xl font-bold mb-2 text-slate-800" data-translate></h2>
+                        <p id="game3-desc" class="text-slate-600 text-sm flex-grow" data-translate></p>
                         <div class="mt-6">
-                            <a href="./numbers-game/index.html" id="game3-btn" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
-                                Speel Spel
+                            <a href="./numbers-game/index.html" id="game3-btn" class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors" aria-label="Play Game 3">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="5 3 19 12 5 21"></polygon>
+                                </svg>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Game 4: Color Reaction Game (color-game) -->
                 <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                     <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/ebcb8b/2e3440?text=Tap+the+Color" alt="Color Reaction Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/ebcb8b/2e3440?text=Image+Not+Found';">
                     <div class="p-6 flex-grow flex flex-col">
-                        <h2 id="game4-title" class="text-xl font-bold mb-2 text-slate-800">Kleurreactie Spel</h2>
-                        <p id="game4-desc" class="text-slate-600 text-sm flex-grow">Test je reflexen door alleen op het scherm te tikken als een "juiste" kleur verschijnt.</p>
+                        <h2 id="game4-title" class="text-xl font-bold mb-2 text-slate-800" data-translate></h2>
+                        <p id="game4-desc" class="text-slate-600 text-sm flex-grow" data-translate></p>
                         <div class="mt-6">
-                            <a href="./color-game/index.html" id="game4-btn" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
-                                Speel Spel
+                            <a href="./color-game/index.html" id="game4-btn" class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors" aria-label="Play Game 4">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="5 3 19 12 5 21"></polygon>
+                                </svg>
                             </a>
                         </div>
                     </div>
@@ -109,28 +112,21 @@
             </div>
         </main>
 
-        <!-- Footer -->
         <footer class="text-center mt-10 sm:mt-16">
-            <p id="footer-text" class="text-slate-500 text-sm">© 2025 Valentijn Leenaers</p>
+            <p id="footer-text" class="text-slate-500 text-sm">
+                </p>
         </footer>
     </div>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Function to get language from URL
-            function getLangFromURL() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const lang = urlParams.get('lang');
-                if (lang === 'en' || lang === 'nl') {
-                    return lang;
-                }
-                return null;
-            }
 
+            // Centralized translations object
             const translations = {
                 nl: {
-                    title: "Val's Spelletjes Hub",
-                    subtitle: "Een verzameling cognitieve spellen ontworpen door Valentijn Leenaers. Kies hieronder een spel om te beginnen.",
+                    page_title: "Cognitieve Game Hub",
+                    main_title: "Cognitieve Game Hub",
+                    subtitle: "Een verzameling cognitieve spellen. Kies hieronder een spel om te beginnen.",
                     game1_title: "Woordenmozaïek",
                     game1_desc: "Spel woorden door letters en cijfers in de juiste kleurenvolgorde te selecteren.",
                     game2_title: "Woordsom Spel",
@@ -140,11 +136,12 @@
                     game4_title: "Kleurenflits Spel",
                     game4_desc: "Test je reflexen door alleen op het scherm te tikken als een \"juiste\" kleur verschijnt.",
                     play_btn: "Speel Spel",
-                    page_title: "Val's Spelletjes Hub",
+                    footer_text: "© 2025 Valentijn Leenaers"
                 },
                 en: {
-                    title: "Val's Game Hub",
-                    subtitle: "A collection of cognitive games designed by Valentijn Leenaers. Choose a game below to start playing.",
+                    page_title: "Cognitieve Game Hub",
+                    main_title: "Cognitieve Game Hub",
+                    subtitle: "A collection of cognitive games. Choose a game below to start playing.",
                     game1_title: "Lexi-Mosaic Game",
                     game1_desc: "Spell words by selecting letters and numbers in the correct color sequence.",
                     game2_title: "Word Sum Game",
@@ -154,22 +151,28 @@
                     game4_title: "Color Reaction Game",
                     game4_desc: "Test your reflexes by tapping the screen only when a \"correct\" color appears.",
                     play_btn: "Play Game",
-                    page_title: "Val's Game Hub",
+                    footer_text: "© 2025 Valentijn Leenaers"
                 }
             };
 
             const langNlBtn = document.getElementById('lang-nl');
             const langEnBtn = document.getElementById('lang-en');
 
+            const getLangFromURL = () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const lang = urlParams.get('lang');
+                return (lang === 'en' || lang === 'nl') ? lang : null;
+            };
+
             const setLanguage = (lang) => {
                 const t = translations[lang];
                 
-                // Set page language and title
+                // Set page language and document title
                 document.documentElement.lang = lang;
                 document.title = t.page_title;
 
                 // Update header
-                document.querySelector('#main-title span').textContent = t.title;
+                document.getElementById('main-title').textContent = t.main_title;
                 document.getElementById('subtitle').textContent = t.subtitle;
 
                 // Update game cards
@@ -188,12 +191,15 @@
                 document.getElementById('game4-title').textContent = t.game4_title;
                 document.getElementById('game4-desc').textContent = t.game4_desc;
                 document.getElementById('game4-btn').textContent = t.play_btn;
+
+                // Update footer
+                document.getElementById('footer-text').textContent = t.footer_text;
                 
                 // Update game links with the language parameter
-                document.getElementById('game1-btn').href = `./mosaic-game/index.html?lang=${lang}`;
-                document.getElementById('game2-btn').href = `./word-game/index.html?lang=${lang}`;
-                document.getElementById('game3-btn').href = `./numbers-game/index.html?lang=${lang}`;
-                document.getElementById('game4-btn').href = `./color-game/index.html?lang=${lang}`;
+                document.querySelectorAll('.game-card a').forEach(link => {
+                    const originalHref = link.href.split('?')[0];
+                    link.href = `${originalHref}?lang=${lang}`;
+                });
 
                 // Update active button style
                 if (lang === 'nl') {
@@ -204,14 +210,14 @@
                     langNlBtn.classList.remove('active');
                 }
 
-                // Save preference
+                // Save language preference to local storage
                 localStorage.setItem('gameHubLang', lang);
             };
 
             langNlBtn.addEventListener('click', () => setLanguage('nl'));
             langEnBtn.addEventListener('click', () => setLanguage('en'));
 
-            // Set initial language based on URL, then storage, or default to Dutch
+            // Set initial language based on URL, then local storage, or default to Dutch
             const initialLang = getLangFromURL() || localStorage.getItem('gameHubLang') || 'nl';
             setLanguage(initialLang);
         });
