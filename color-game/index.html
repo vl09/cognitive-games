@@ -239,6 +239,17 @@
             const colorTimeoutRef = useRef(null);
             const nextColorTimeoutRef = useRef(null);
             
+            const handleLanguageChange = (newLang) => {
+                // Set the language state, which will trigger a re-render
+                setLanguage(newLang);
+
+                // Update the browser's URL without reloading the page
+                const url = new URL(window.location);
+                url.searchParams.set('lang', newLang);
+                window.history.pushState({}, '', url);
+            };
+
+            
             // Audio context and sound generation
             const audioContextRef = useRef(null);
 
@@ -581,7 +592,7 @@
                     }, [
                         React.createElement('button', {
                             key: 'nl-btn',
-                            onClick: () => setLanguage('nl'),
+                            onClick: () => handleLanguageChange('nl'),
                             className: `px-4 py-2 rounded-lg transition-colors text-2xl ${
                                 language === 'nl' 
                                     ? 'bg-blue-600 border-2 border-blue-400' 
@@ -590,7 +601,7 @@
                         }, '🇳🇱'),
                         React.createElement('button', {
                             key: 'en-btn',
-                            onClick: () => setLanguage('en'),
+                            onClick: () => handleLanguageChange('en'),
                             className: `px-4 py-2 rounded-lg transition-colors text-2xl ${
                                 language === 'en' 
                                     ? 'bg-blue-600 border-2 border-blue-400' 
