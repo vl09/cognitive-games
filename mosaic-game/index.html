@@ -307,6 +307,8 @@
             const [shouldShufflePerRound, setShouldShufflePerRound] = useState(() => getCookie('cognitiveGameShuffle') ?? true);
             const shuffleRef = useRef(shouldShufflePerRound);
             
+            const isInitialRender = useRef(true); //
+            
             useEffect(() => {
                 const checkScreenSize = () => {
                     // Set state based on screen width
@@ -435,6 +437,20 @@
             useEffect(() => {
                 setupBoard();
             }, [setupBoard]);
+            
+             useEffect(() => {
+                // Don't run this on the very first render of the component.
+                if (isInitialRender.current) {
+                    isInitialRender.current = false;
+                    return;
+                }
+
+                // When the difficulty changes, reset the score and rounds, then start a new round.
+                setScore(0);
+                setRoundsPlayed(0);
+                startRound();
+
+            }, [difficulty]); // This dependency array ensures the effect ONLY runs when 'difficulty' changes.
 
             const startRound = useCallback(() => {
                 if (shuffleRef.current) {
@@ -541,13 +557,6 @@
                 setResult(resultData);
 
                 timeoutRef.current = setTimeout(startRound, 3000);
-            };
-
-            const handleSettingChange = (setter, valueFn) => {
-                setter(valueFn);
-                setScore(0);
-                setRoundsPlayed(0);
-                startRound();
             };
             
             const getExpectedProperties = () => {
@@ -816,7 +825,7 @@
                 React.createElement('div', { key: 'quick-controls', className: 'p-2 bg-white border-b border-gray-200 flex flex-wrap items-center justify-center gap-2 text-sm' }, [
                     React.createElement('div', { className: 'flex-grow flex items-center justify-center gap-2' }, [
                         React.createElement('button', {
-                            onClick: () => handleSettingChange(setDifficulty, d => d === 'easy' ? 'medium' : d === 'medium' ? 'hard' : 'easy'),
+                            onClick: () => setDifficulty(d => d === 'easy' ? 'medium' : d === 'medium' ? 'hard' : 'easy'),
                             className: `h-10 px-4 rounded-lg font-semibold transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200`
                         }, t[`difficulty${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`]),
                         React.createElement('div', { className: 'relative' }, [
