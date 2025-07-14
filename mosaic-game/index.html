@@ -117,6 +117,35 @@
             React.createElement('path', { key: 'p3', d: "M6 18H4c0-1 2-2 2-3s-1-1.5-2-2" })
         ]);
 
+
+        // --- Word Lists ---
+        const wordLists = {
+            en: {
+                easy: ["CAT", "DOG", "SUN", "SKY", "RUN", "EAT", "FLY"],
+                medium: ["HOUSE", "WATER", "EARTH", "HAPPY", "SMILE", "OCEAN", "LEVEL"],
+                hard: ["COMPUTER", "KNOWLEDGE", "BEAUTIFUL", "CHALLENGE", "SEQUENCE", "EXCELLENT"]
+            },
+            nl: {
+                easy: ["KAT", "HOND", "ZON", "REN", "EET", "VLIEG"],
+                medium: ["HUIS", "WATER", "AARDE", "BLIJ", "LACH", "ZEE", "LEPEL"],
+                hard: ["COMPUTER", "KENNIS", "PRACHTIG", "UITDAGING", "REEKS", "EXCELLENT"]
+            }
+        };
+        
+        // --- Color Rules ---
+        const colorRules = {
+            en: [
+                { id: 'allBlack', name: 'All Black' },
+                { id: 'allBlue', name: 'All Blue' },
+                { id: 'custom', name: 'Custom Pattern' }
+            ],
+            nl: [
+                { id: 'allBlack', name: 'Alles Zwart' },
+                { id: 'allBlue', name: 'Alles Blauw' },
+                { id: 'custom', name: 'Eigen Patroon' }
+            ]
+        };
+
         // --- Internationalization ---
         const translations = {
             en: {
