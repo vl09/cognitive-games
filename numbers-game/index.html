@@ -958,7 +958,7 @@
             return React.createElement('div', { className: "min-h-screen bg-gray-50 text-gray-800 flex flex-col" }, [
                 React.createElement('div', { key: 'header', className: "p-4 bg-white flex justify-between items-center border-b border-gray-200" }, [
                     React.createElement('a', { href: `../index.html?lang=${language}`, className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(HomeIcon)),
-                    React.createElement('div', { key: 'scores', className: "absolute left-1/2 -translate-x-1/2 flex gap-6 items-center text-lg" }, [
+                    React.createElement('div', { key: 'scores', className: "flex gap-4 items-center text-base sm:text-lg" }, [
                         React.createElement('div', { key: 'score' }, [React.createElement('span', { className: "font-bold text-blue-600" }, `${t.score}: `), `${score}`]),
                         React.createElement('div', { key: 'round' }, [React.createElement('span', { className: "font-bold text-gray-500" }, `${t.round}: `), `${roundsPlayed}`]),
                     ]),
