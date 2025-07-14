@@ -178,6 +178,12 @@
                 document.getElementById('game4-title').textContent = t.game4_title;
                 document.getElementById('game4-desc').textContent = t.game4_desc;
                 document.getElementById('game4-btn').textContent = t.play_btn;
+                
+                // Update game links with the language parameter
+                document.getElementById('game1-btn').href = `./mosaic-game/index.html?lang=${lang}`;
+                document.getElementById('game2-btn').href = `./word-game/index.html?lang=${lang}`;
+                document.getElementById('game3-btn').href = `./numbers-game/index.html?lang=${lang}`;
+                document.getElementById('game4-btn').href = `./color-game/index.html?lang=${lang}`;
 
                 // Update active button style
                 if (lang === 'nl') {
