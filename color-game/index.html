@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Color Reaction Game</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            overflow: hidden;
+        }
+
+        #root {
+            height: 100vh;
+            width: 100vw;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        /*
+         * Advanced Color Flash Reaction Game
+         * Copyright (c) 2025 Valentijn Leenaers
+         * * Features:
+         * - Configurable timing variations
+         * - Multilingual support (Dutch/English)
+         * - Advanced color management
+         * - Touch and keyboard controls
+         * - Mobile-optimized interface
+         */
+        
+        const { useState, useEffect, useRef } = React;
+
+        // Icon components
+        const PlayIcon = () => React.createElement('svg', {
+            width: "20",
+            height: "20",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round"
+        }, React.createElement('polygon', { points: "5,3 19,12 5,21" }));
+
+        const PauseIcon = () => React.createElement('svg', {
+            width: "20",
+            height: "20",
+            viewBox: "0 0 24 24",
+            fill: "currentColor",
+            stroke: "currentColor",
+            strokeWidth: "1",
+        }, [
+            React.createElement('rect', { key: 1, x: "6", y: "4", width: "4", height: "16" }),
+            React.createElement('rect', { key: 2, x: "14", y: "4", width: "4", height: "16" })
+        ]);
+
+        const SettingsIcon = () => React.createElement('svg', {
+            width: "20",
+            height: "20",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round"
+        }, [
+            React.createElement('path', { 
+                key: 1, 
+                d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" 
+            }),
+            React.createElement('circle', { key: 2, cx: "12", cy: "12", r: "3" })
+        ]);
+
+        const RotateCcwIcon = () => React.createElement('svg', {
+            width: "20",
+            height: "20",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round"
+        }, [
+            React.createElement('polyline', { key: 1, points: "1,4 1,10 7,10" }),
+            React.createElement('path', { key: 2, d: "M3.51 15a9 9 0 1 0 2.13-9.36L1 10" })
+        ]);
+
+        const CheckIcon = ({ size = 16, className = "" }) => React.createElement('svg', {
+            width: size,
+            height: size,
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            className: className
+        }, React.createElement('polyline', { points: "20,6 9,17 4,12" }));
+
+        const XIcon = ({ size = 20 }) => React.createElement('svg', {
+            width: size,
+            height: size,
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round"
+        }, [
+            React.createElement('path', { key: 1, d: "M18 6L6 18" }),
+            React.createElement('path', { key: 2, d: "M6 6l12 12" })
+        ]);
+        
+        const VolumeXIcon = () => React.createElement('svg', {
+            width: "20",
+            height: "20",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round"
+        }, [
+            React.createElement('polygon', { key: 1, points: "11,5 6,9 2,9 2,15 6,15 11,19" }),
+            React.createElement('line', { key: 2, x1: "23", y1: "9", x2: "17", y2: "15" }),
+            React.createElement('line', { key: 3, x1: "17", y1: "9", x2: "23", y2: "15" })
+        ]);
+
+        const Volume2Icon = () => React.createElement('svg', {
+            width: "20",
+            height: "20",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round"
+        }, [
+            React.createElement('polygon', { key: 1, points: "11,5 6,9 2,9 2,15 6,15 11,19" }),
+            React.createElement('path', { key: 2, d: "M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" })
+        ]);
+        
+        const ExclamationIcon = ({ size = 20 }) => React.createElement('svg', {
+            width: size,
+            height: size,
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round"
+        }, [
+            React.createElement('path', { key: 1, d: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" }),
+            React.createElement('line', { key: 2, x1: "12", y1: "8", x2: "12", y2: "12" }),
+            React.createElement('line', { key: 3, x1: "12", y1: "16", x2: "12.01", y2: "16" })
+        ]);
+        
+        // Cookie utility functions
+        const setCookie = (name, value, days = 365) => {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expires.toUTCString()};path=/`;
+        };
+
+        const getCookie = (name) => {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) {
+                    try {
+                        return JSON.parse(decodeURIComponent(c.substring(nameEQ.length, c.length)));
+                    } catch (e) {
+                        return null;
+                    }
+                }
+            }
+            return null;
+        };
+
+        const ColorFlashGame = () => {
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [showColor, setShowColor] = useState(false);
+            const [currentColor, setCurrentColor] = useState('#ff0000');
+            const [isCorrectColor, setIsCorrectColor] = useState(true);
+            const [score, setScore] = useState(0);
+            const [missed, setMissed] = useState(0);
+            const [wrongTaps, setWrongTaps] = useState(0);
+            const [showSettings, setShowSettings] = useState(false);
+            const [isMuted, setIsMuted] = useState(() => getCookie('colorGameMuted') || false);
+            
+            // Load settings from cookies or use defaults
+            const [language, setLanguage] = useState(() => getCookie('colorGameLanguage') || 'nl');
+            const [intervalTimeBase, setIntervalTimeBase] = useState(() => getCookie('colorGameIntervalBase') || 2200);
+            const [intervalVariation, setIntervalVariation] = useState(() => getCookie('colorGameIntervalVar') || 500);
+            const [displayTimeBase, setDisplayTimeBase] = useState(() => getCookie('colorGameDisplayBase') || 2200);
+            const [displayVariation, setDisplayVariation] = useState(() => getCookie('colorGameDisplayVar') || 300);
+            const [availableColors, setAvailableColors] = useState(() => 
+                getCookie('colorGameAvailable') || ['#ff0000', '#00ff00', '#0000ff', '#ffff00']
+            );
+            const [correctColors, setCorrectColors] = useState(() => 
+                getCookie('colorGameCorrect') || ['#00ff00', '#0000ff']
+            );
+
+            const gameIntervalRef = useRef(null);
+            const colorTimeoutRef = useRef(null);
+            const nextColorTimeoutRef = useRef(null);
+            
+            // Audio context and sound generation
+            const audioContextRef = useRef(null);
+
+            const createAudioContext = () => {
+                // If the existing context was closed, discard it so a new one can be made.
+                if (audioContextRef.current && audioContextRef.current.state === 'closed') {
+                    audioContextRef.current = null;
+                }
+
+                // If there's no context, create one.
+                if (!audioContextRef.current) {
+                    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                // If the context is not running, try to resume it.
+                // This handles cases where the browser suspended it due to inactivity.
+                if (audioContextRef.current.state !== 'running') {
+                    audioContextRef.current.resume();
+                }
+
+                return audioContextRef.current;
+            };
+            
+            const playBeep = (frequency, duration, type = 'correct') => {
+                if (isMuted) return;
+                try {
+                    const audioContext = createAudioContext();
+                    if (type === 'correct') {
+                        const frequencies = [700, 900];
+                        for (let i = 0; i < 2; i++) {
+                            const oscillator = audioContext.createOscillator();
+                            const gainNode = audioContext.createGain();
+                            oscillator.connect(gainNode);
+                            gainNode.connect(audioContext.destination);
+                            const startTime = audioContext.currentTime + (i * 0.12);
+                            oscillator.frequency.setValueAtTime(frequencies[i], startTime);
+                            oscillator.type = 'square';
+                            gainNode.gain.setValueAtTime(0.2, startTime);
+                            gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1);
+                            oscillator.start(startTime);
+                            oscillator.stop(startTime + 0.1);
+                        }
+                    } else if (type === 'wrong') {
+                        for (let i = 0; i < 2; i++) {
+                            const oscillator = audioContext.createOscillator();
+                            const gainNode = audioContext.createGain();
+                            oscillator.connect(gainNode);
+                            gainNode.connect(audioContext.destination);
+                            const startTime = audioContext.currentTime + (i * 0.15);
+                            oscillator.frequency.setValueAtTime(400, startTime);
+                            oscillator.type = 'square';
+                            gainNode.gain.setValueAtTime(0.2, startTime);
+                            gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1);
+                            oscillator.start(startTime);
+                            oscillator.stop(startTime + 0.1);
+                        }
+                    } else if (type === 'miss') {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.4);
+                        oscillator.type = 'square';
+                        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.4);
+                    }
+                } catch (error) {
+                    console.log('Audio not supported or blocked');
+                }
+            };
+            
+            const allColors = [
+                { color: '#ff0000', name: 'Red', nl: 'Rood', textColor: 'white' },
+                { color: '#00ff00', name: 'Green', nl: 'Groen', textColor: 'black' },
+                { color: '#0000ff', name: 'Blue', nl: 'Blauw', textColor: 'white' },
+                { color: '#ffff00', name: 'Yellow', nl: 'Geel', textColor: 'black' },
+                { color: '#ff00ff', name: 'Magenta', nl: 'Magenta', textColor: 'white' },
+                { color: '#00ffff', name: 'Cyan', nl: 'Cyaan', textColor: 'black' },
+                { color: '#ff8000', name: 'Orange', nl: 'Oranje', textColor: 'black' },
+                { color: '#8000ff', name: 'Purple', nl: 'Paars', textColor: 'white' },
+                { color: '#ff0080', name: 'Pink', nl: 'Roze', textColor: 'white' },
+                { color: '#80ff00', name: 'Lime', nl: 'Limoen', textColor: 'black' },
+                { color: '#0080ff', name: 'Sky Blue', nl: 'Hemelsblauw', textColor: 'white' },
+                { color: '#ff8080', name: 'Light Red', nl: 'Lichtrood', textColor: 'black' }
+            ];
+
+            const translations = {
+                en: {
+                    title: "Color Reaction Game",
+                    description: "Tap the screen when a 'correct' color appears. Avoid tapping on 'wrong' colors. Configure rules and timing in settings.",
+                    instructions: "Tap only for correct colors!",
+                    correct: "Correct",
+                    missed: "Missed", 
+                    wrong: "Wrong",
+                    colorWarning: "Please select at least one available color in settings to start!",
+                    timingSettings: "Timing",
+                    colorSettings: "Colors",
+                    language: "Language",
+                    baseInterval: "Base Interval",
+                    intervalVariation: "Interval Variation",
+                    baseDisplayTime: "Base Display Time", 
+                    displayVariation: "Display Variation",
+                    availableColors: "Available Colors",
+                    correctColors: "Correct Colors",
+                    baseIntervalDesc: "Average time between colors",
+                    intervalVariationDesc: "Random variation in timing", 
+                    baseDisplayTimeDesc: "How long colors stay visible",
+                    displayVariationDesc: "Random variation in display time",
+                    closeSettings: "Close",
+                    settingsTitle: "Settings"
+                },
+                nl: {
+                    title: "Kleurenflits Spel",
+                    description: "Tik op het scherm als een 'juiste' kleur verschijnt. Vermijd tikken op 'foute' kleuren. Configureer regels en timing in de instellingen.",
+                    instructions: "Tik alleen bij de juiste kleuren!",
+                    correct: "Juist",
+                    missed: "Gemist",
+                    wrong: "Fout", 
+                    colorWarning: "Selecteer ten minste één beschikbare kleur in de instellingen om te starten!",
+                    timingSettings: "Timing",
+                    colorSettings: "Kleuren",
+                    language: "Taal",
+                    baseInterval: "Basis Interval",
+                    intervalVariation: "Interval Variatie",
+                    baseDisplayTime: "Basis Weergavetijd",
+                    displayVariation: "Weergave Variatie", 
+                    availableColors: "Beschikbare Kleuren",
+                    correctColors: "Juiste Kleuren",
+                    baseIntervalDesc: "Gemiddelde tijd tussen kleuren",
+                    intervalVariationDesc: "Willekeurige variatie in timing",
+                    baseDisplayTimeDesc: "Hoe lang kleuren zichtbaar blijven",
+                    displayVariationDesc: "Willekeurige variatie in weergavetijd",
+                    closeSettings: "Sluiten",
+                    settingsTitle: "Instellingen"
+                }
+            };
+
+            const t = translations[language];
+            
+            useEffect(() => {
+                let lastTouchEnd = 0;
+                const preventDefault = (e) => {
+                    const now = new Date().getTime();
+                    if (now - lastTouchEnd <= 300) {
+                        e.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                };
+                document.addEventListener('touchend', preventDefault, false);
+                
+                // Add spacebar functionality
+                const handleKeyPress = (e) => {
+                    if (e.code === 'Space' || e.key === ' ') {
+                        e.preventDefault(); // Prevent page scroll
+                        handleColorTap();
+                    }
+                };
+                document.addEventListener('keydown', handleKeyPress);
+                
+                return () => {
+                    document.removeEventListener('touchend', preventDefault, false);
+                    document.removeEventListener('keydown', handleKeyPress);
+                };
+            }, [showColor, isPlaying, isCorrectColor]);
+            
+            const getRandomVariation = (base, variation) => {
+                const min = base - variation / 2;
+                const max = base + variation / 2;
+                return Math.max(500, Math.random() * (max - min) + min);
+            };
+            
+            const getRandomColor = () => {
+                return availableColors[Math.floor(Math.random() * availableColors.length)];
+            };
+            
+            const showNewColor = () => {
+                const newColor = getRandomColor();
+                const isCorrect = correctColors.includes(newColor);
+                setCurrentColor(newColor);
+                setIsCorrectColor(isCorrect);
+                setShowColor(true);
+                
+                const displayTime = getRandomVariation(displayTimeBase, displayVariation);
+                
+                colorTimeoutRef.current = setTimeout(() => {
+                    setShowColor(false);
+                    if (isCorrect) {
+                        setMissed(prev => prev + 1);
+                        playBeep(500, 0.5, 'miss');
+                    }
+                    nextColorTimeoutRef.current = setTimeout(scheduleNextColor, 500);
+                }, displayTime);
+            };
+            
+            const scheduleNextColor = () => {
+                const nextInterval = getRandomVariation(intervalTimeBase, intervalVariation);
+                gameIntervalRef.current = setTimeout(showNewColor, nextInterval);
+            };
+            
+            const startGame = () => {
+                setIsPlaying(true);
+                setShowSettings(false);
+                setScore(0);
+                setMissed(0);
+                setWrongTaps(0);
+                createAudioContext(); // Initialize audio context on user interaction
+                setTimeout(showNewColor, 1000);
+            };
+            
+            const stopGame = () => {
+                setIsPlaying(false);
+                setShowColor(false);
+                if (gameIntervalRef.current) clearTimeout(gameIntervalRef.current);
+                if (colorTimeoutRef.current) clearTimeout(colorTimeoutRef.current);
+                if (nextColorTimeoutRef.current) clearTimeout(nextColorTimeoutRef.current);
+            };
+            
+            const toggleSettings = () => {
+                setShowSettings(s => !s);
+            };
+            
+            const resetGame = () => {
+                stopGame();
+                setScore(0);
+                setMissed(0);
+                setWrongTaps(0);
+            };
+            
+            const handleColorTap = () => {
+                if (showColor && isPlaying) {
+                    setShowColor(false);
+                    if (isCorrectColor) {
+                        setScore(prev => prev + 1);
+                        playBeep(800, 0.1, 'correct');
+                    } else {
+                        setWrongTaps(prev => prev + 1);
+                        playBeep(400, 0.1, 'wrong');
+                    }
+                    if (colorTimeoutRef.current) clearTimeout(colorTimeoutRef.current);
+                    nextColorTimeoutRef.current = setTimeout(scheduleNextColor, 500);
+                }
+            };
+            
+            const toggleColorAvailable = (color) => {
+                const newColors = availableColors.includes(color) 
+                    ? availableColors.filter(c => c !== color)
+                    : [...availableColors, color];
+                setAvailableColors(newColors);
+                setCookie('colorGameAvailable', newColors);
+            };
+
+            const toggleColorCorrect = (color) => {
+                const newCorrectColors = correctColors.includes(color) 
+                    ? correctColors.filter(c => c !== color)
+                    : [...correctColors, color];
+                setCorrectColors(newCorrectColors);
+                setCookie('colorGameCorrect', newCorrectColors);
+            };
+            
+            useEffect(() => { setCookie('colorGameLanguage', language); }, [language]);
+            useEffect(() => { setCookie('colorGameIntervalBase', intervalTimeBase); }, [intervalTimeBase]);
+            useEffect(() => { setCookie('colorGameIntervalVar', intervalVariation); }, [intervalVariation]);
+            useEffect(() => { setCookie('colorGameDisplayBase', displayTimeBase); }, [displayTimeBase]);
+            useEffect(() => { setCookie('colorGameDisplayVar', displayVariation); }, [displayVariation]);
+            useEffect(() => { setCookie('colorGameMuted', isMuted); }, [isMuted]);
+            
+            useEffect(() => {
+                return () => {
+                    if (gameIntervalRef.current) clearTimeout(gameIntervalRef.current);
+                    if (colorTimeoutRef.current) clearTimeout(colorTimeoutRef.current);
+                    if (nextColorTimeoutRef.current) clearTimeout(nextColorTimeoutRef.current);
+                };
+            }, []);
+
+            // UI Elements
+            const headerElement = React.createElement('div', {
+                className: "p-4 bg-gray-900 flex justify-between items-center border-b border-gray-700"
+            }, [
+                React.createElement('div', { key: 'scores', className: "flex gap-4 sm:gap-6 items-center text-base sm:text-lg" }, [
+                    React.createElement('div', { key: 'correct', className: "text-green-400 font-bold flex items-center gap-1" }, [
+                        React.createElement('span', { className: 'sm:hidden' }, React.createElement(CheckIcon, { size: 16 })),
+                        React.createElement('span', { className: 'hidden sm:inline' }, `${t.correct}:`),
+                        React.createElement('span', {}, score)
+                    ]),
+                    React.createElement('div', { key: 'missed', className: "text-orange-400 font-bold flex items-center gap-1" }, [
+                        React.createElement('span', { className: 'sm:hidden' }, React.createElement(ExclamationIcon, { size: 16 })),
+                        React.createElement('span', { className: 'hidden sm:inline' }, `${t.missed}:`),
+                        React.createElement('span', {}, missed)
+                    ]),
+                    React.createElement('div', { key: 'wrong', className: "text-red-400 font-bold flex items-center gap-1" }, [
+                        React.createElement('span', { className: 'sm:hidden' }, React.createElement(XIcon, { size: 16 })),
+                        React.createElement('span', { className: 'hidden sm:inline' }, `${t.wrong}:`),
+                        React.createElement('span', {}, wrongTaps)
+                    ])
+                ]),
+                React.createElement('div', { key: 'controls', className: "flex gap-2" }, [
+                    React.createElement('button', { key: 'settings', onClick: toggleSettings, className: "p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors" }, React.createElement(SettingsIcon)),
+                    React.createElement('button', { key: 'mute', onClick: () => setIsMuted(!isMuted), className: `p-2 rounded-lg transition-colors ${isMuted ? 'bg-red-600 hover:bg-red-500' : 'bg-gray-800 hover:bg-gray-700'}`}, isMuted ? React.createElement(VolumeXIcon) : React.createElement(Volume2Icon)),
+                    React.createElement('button', { key: 'reset', onClick: resetGame, className: "p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors" }, React.createElement(RotateCcwIcon)),
+                    React.createElement('button', { key: 'playpause', onClick: isPlaying ? stopGame : startGame, className: `p-2 rounded-lg transition-colors text-white ${isPlaying ? 'bg-amber-500 hover:bg-amber-400' : 'bg-green-600 hover:bg-green-500'}`, disabled: availableColors.length === 0 }, isPlaying ? React.createElement(PauseIcon) : React.createElement(PlayIcon))
+                ])
+            ]);
+
+            const settingsPanel = showSettings ? React.createElement('div', {
+                className: "absolute inset-0 bg-gray-800 z-50 overflow-y-auto",
+                style: { 
+                    height: '100vh',
+                    width: '100vw',
+                    top: 0,
+                    left: 0
+                }
+            }, React.createElement('div', {
+                className: "min-h-full p-4"
+            }, React.createElement('div', {
+                className: "max-w-4xl mx-auto space-y-6 pb-24"
+            }, [
+                // Settings title
+                React.createElement('h2', {
+                    key: 'settings-title',
+                    className: "text-2xl font-bold text-center mb-6 text-white border-b border-gray-600 pb-4"
+                }, t.settingsTitle),
+
+                // Language section
+                React.createElement('div', {
+                    key: 'language-section'
+                }, [
+                    React.createElement('h3', {
+                        key: 'language-title',
+                        className: "text-lg font-semibold mb-3"
+                    }, t.language),
+                    React.createElement('div', {
+                        key: 'language-buttons',
+                        className: "flex gap-2"
+                    }, [
+                        React.createElement('button', {
+                            key: 'nl-btn',
+                            onClick: () => setLanguage('nl'),
+                            className: `px-4 py-2 rounded-lg transition-colors text-2xl ${
+                                language === 'nl' 
+                                    ? 'bg-blue-600 border-2 border-blue-400' 
+                                    : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
+                            }`
+                        }, '🇳🇱'),
+                        React.createElement('button', {
+                            key: 'en-btn',
+                            onClick: () => setLanguage('en'),
+                            className: `px-4 py-2 rounded-lg transition-colors text-2xl ${
+                                language === 'en' 
+                                    ? 'bg-blue-600 border-2 border-blue-400' 
+                                    : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
+                            }`
+                        }, '🇬🇧')
+                    ])
+                ]),
+
+                // Timing section
+                React.createElement('div', {
+                    key: 'timing-section'
+                }, [
+                    React.createElement('h3', {
+                        key: 'timing-title',
+                        className: "text-lg font-semibold mb-3"
+                    }, t.timingSettings),
+                    React.createElement('div', {
+                        key: 'timing-grid',
+                        className: "grid grid-cols-1 md:grid-cols-2 gap-4"
+                    }, [
+                        React.createElement('div', {
+                            key: 'interval-base-control'
+                        }, [
+                            React.createElement('label', {
+                                key: 'interval-base-label',
+                                className: "block text-sm font-medium mb-1"
+                            }, `${t.baseInterval}: ${(intervalTimeBase / 1000).toFixed(1)}s`),
+                            React.createElement('p', {
+                                key: 'interval-base-desc',
+                                className: "text-xs text-gray-400 mb-2"
+                            }, t.baseIntervalDesc),
+                            React.createElement('input', {
+                                key: 'interval-base-input',
+                                type: "range",
+                                min: "500",
+                                max: "10000",
+                                step: "100",
+                                value: intervalTimeBase,
+                                onChange: (e) => setIntervalTimeBase(Number(e.target.value)),
+                                className: "w-full"
+                            })
+                        ]),
+                        
+                        React.createElement('div', {
+                            key: 'interval-var-control'
+                        }, [
+                            React.createElement('label', {
+                                key: 'interval-var-label',
+                                className: "block text-sm font-medium mb-1"
+                            }, `${t.intervalVariation}: ±${(intervalVariation / 1000).toFixed(1)}s`),
+                            React.createElement('p', {
+                                key: 'interval-var-desc',
+                                className: "text-xs text-gray-400 mb-2"
+                            }, t.intervalVariationDesc),
+                            React.createElement('input', {
+                                key: 'interval-var-input',
+                                type: "range",
+                                min: "0",
+                                max: "3000",
+                                step: "100",
+                                value: intervalVariation,
+                                onChange: (e) => setIntervalVariation(Number(e.target.value)),
+                                className: "w-full"
+                            })
+                        ]),
+                        
+                        React.createElement('div', {
+                            key: 'display-base-control'
+                        }, [
+                            React.createElement('label', {
+                                key: 'display-base-label',
+                                className: "block text-sm font-medium mb-1"
+                            }, `${t.baseDisplayTime}: ${(displayTimeBase / 1000).toFixed(1)}s`),
+                            React.createElement('p', {
+                                key: 'display-base-desc',
+                                className: "text-xs text-gray-400 mb-2"
+                            }, t.baseDisplayTimeDesc),
+                            React.createElement('input', {
+                                key: 'display-base-input',
+                                type: "range",
+                                min: "300",
+                                max: "5000",
+                                step: "100",
+                                value: displayTimeBase,
+                                onChange: (e) => setDisplayTimeBase(Number(e.target.value)),
+                                className: "w-full"
+                            })
+                        ]),
+                        
+                        React.createElement('div', {
+                            key: 'display-var-control'
+                        }, [
+                            React.createElement('label', {
+                                key: 'display-var-label',
+                                className: "block text-sm font-medium mb-1"
+                            }, `${t.displayVariation}: ±${(displayVariation / 1000).toFixed(1)}s`),
+                            React.createElement('p', {
+                                key: 'display-var-desc',
+                                className: "text-xs text-gray-400 mb-2"
+                            }, t.displayVariationDesc),
+                            React.createElement('input', {
+                                key: 'display-var-input',
+                                type: "range",
+                                min: "0",
+                                max: "2000",
+                                step: "100",
+                                value: displayVariation,
+                                onChange: (e) => setDisplayVariation(Number(e.target.value)),
+                                className: "w-full"
+                            })
+                        ])
+                    ])
+                ]),
+
+                // Color section
+                React.createElement('div', {
+                    key: 'color-section'
+                }, [
+                    React.createElement('h3', {
+                        key: 'color-title',
+                        className: "text-lg font-semibold mb-3"
+                    }, t.colorSettings),
+                    React.createElement('div', {
+                        key: 'color-grid',
+                        className: "grid grid-cols-1 md:grid-cols-2 gap-6"
+                    }, [
+                        React.createElement('div', {
+                            key: 'available-section'
+                        }, [
+                            React.createElement('h4', {
+                                key: 'available-title',
+                                className: "font-medium mb-2"
+                            }, `${t.availableColors} (${availableColors.length})`),
+                            React.createElement('div', {
+                                key: 'available-grid',
+                                className: "grid grid-cols-3 gap-2"
+                            }, allColors.map(({ color, name, nl, textColor }) => {
+                                const isSelected = availableColors.includes(color);
+                                return React.createElement('button', {
+                                    key: `available-${color}`,
+                                    onClick: () => toggleColorAvailable(color),
+                                    className: `p-2 rounded-lg border-2 text-xs transition-all relative ${
+                                        isSelected
+                                            ? 'border-white opacity-100 shadow-lg'
+                                            : 'border-gray-600 opacity-50'
+                                    }`,
+                                    style: { 
+                                        backgroundColor: color,
+                                        color: textColor
+                                    }
+                                }, [
+                                    language === 'nl' ? nl : name,
+                                    isSelected ? React.createElement('div', {
+                                        key: 'indicator',
+                                        className: `absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 ${
+                                            textColor === 'black' ? 'bg-white border-gray-800' : 'bg-gray-800 border-white'
+                                        } flex items-center justify-center`
+                                    }, React.createElement('div', {
+                                        key: 'dot',
+                                        className: `w-2 h-2 rounded-full ${
+                                            textColor === 'black' ? 'bg-blue-600' : 'bg-blue-400'
+                                        }`
+                                    })) : null
+                                ]);
+                            }))
+                        ]),
+                        
+                        React.createElement('div', {
+                            key: 'correct-section'
+                        }, [
+                            React.createElement('h4', {
+                                key: 'correct-title',
+                                className: "font-medium mb-2 flex items-center gap-2"
+                            }, [
+                                React.createElement(CheckIcon, { 
+                                    key: 'check-icon', 
+                                    size: 16, 
+                                    className: "text-green-400" 
+                                }),
+                                `${t.correctColors} (${correctColors.length})`
+                            ]),
+                            React.createElement('div', {
+                                key: 'correct-grid',
+                                className: "grid grid-cols-3 gap-2"
+                            }, allColors.filter(({ color }) => availableColors.includes(color)).map(({ color, name, nl, textColor }) => {
+                                const isCorrect = correctColors.includes(color);
+                                return React.createElement('button', {
+                                    key: `correct-${color}`,
+                                    onClick: () => toggleColorCorrect(color),
+                                    className: `p-2 rounded-lg border-2 text-xs transition-all relative ${
+                                        isCorrect
+                                            ? 'border-green-400 shadow-lg'
+                                            : 'border-gray-600 opacity-70'
+                                    }`,
+                                    style: { 
+                                        backgroundColor: color,
+                                        color: textColor
+                                    }
+                                }, [
+                                    language === 'nl' ? nl : name,
+                                    isCorrect ? React.createElement('div', {
+                                        key: 'check-indicator',
+                                        className: `absolute -top-1 -right-1 w-4 h-4 rounded-full ${
+                                            textColor === 'black' ? 'bg-green-600' : 'bg-green-400'
+                                        } flex items-center justify-center`
+                                    }, React.createElement(CheckIcon, {
+                                        key: 'check-mark',
+                                        size: 10,
+                                        className: "text-white"
+                                    })) : null
+                                ]);
+                            }))
+                        ])
+                    ])
+                ]),
+
+                // Close button
+                React.createElement('div', {
+                    key: 'close-section',
+                    className: "flex justify-end pt-4 border-t border-gray-700"
+                },                 React.createElement('button', {
+                    key: 'close-btn',
+                    onClick: toggleSettings,
+                    className: "px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors flex items-center gap-2 font-medium"
+                }, [
+                    React.createElement(XIcon, { key: 'close-icon' }),
+                    t.closeSettings
+                ]))
+            ]))) : null;
+
+            const gameArea = React.createElement('div', {
+                className: "flex-1 flex items-center justify-center cursor-pointer relative",
+                onClick: handleColorTap
+            }, [
+                showColor && isPlaying ? React.createElement('div', {
+                    key: 'color-circle',
+                    className: "w-64 h-64 rounded-full shadow-2xl transform transition-all duration-300 scale-100 hover:scale-105",
+                    style: { backgroundColor: currentColor }
+                }) : null,
+
+                !isPlaying ? React.createElement('div', {
+                    key: 'welcome',
+                    className: "text-center p-4"
+                }, [
+                    React.createElement('h2', { key: 'title', className: "text-4xl font-bold mb-4 text-white" }, t.title),
+                    React.createElement('p', { key: 'description', className: "text-gray-400 max-w-md mx-auto mb-6" }, t.description),
+                    availableColors.length === 0 ? React.createElement('p', { key: 'warning', className: "text-red-400 text-sm animate-pulse" }, t.colorWarning) : null
+                ]) : null,
+
+                !isPlaying ? React.createElement('div', {
+                    key: 'signature',
+                    className: "fixed bottom-4 left-0 right-0 text-center text-xs text-gray-500 opacity-60 z-10",
+                    style: { paddingBottom: 'env(safe-area-inset-bottom, 0px)' }
+                }, "© 2025 Valentijn Leenaers") : null
+            ]);
+
+            const instructions = isPlaying ? React.createElement('div', {
+                className: "p-2 bg-gray-900 text-center text-sm text-gray-400"
+            }, t.instructions) : null;
+
+            return React.createElement('div', {
+                className: "min-h-screen bg-black text-white flex flex-col",
+                style: { height: '100vh', width: '100vw', position: 'relative', overflow: 'hidden' }
+            }, [
+                headerElement,
+                settingsPanel,
+                gameArea,
+                instructions
+            ].filter(Boolean));
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(ColorFlashGame));
+    </script>
+</body>
+</html>
