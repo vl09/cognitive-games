@@ -55,147 +55,160 @@
     </div>
     
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
 
-            const translations = {
-                nl: {
-                    page_title: "Cognitieve Game Hub",
-                    main_title: "Cognitieve Game Hub",
-                    subtitle: "Een verzameling cognitieve spellen. Kies hieronder een spel om te beginnen.",
-                    footer_text: "© 2025 Valentijn Leenaers",
-                    games: [
-                        {
-                            title: 'Kleurenflits Spel',
-                            description: 'Test je reflexen door alleen op het scherm te tikken als een "juiste" kleur verschijnt.',
-                            imageUrl: './images/cover_color.png',
-                            imageAlt: 'Kleurenflits Spel Cover',
-                            link: './color-game/index.html'
-                        },
-                        {
-                            title: 'Cijferreeks Geheugenspel',
-                            description: 'Onthoud een reeks cijfers en roep ze vervolgens terug volgens de spelmodus.',
-                            imageUrl: './images/cover_number.png',
-                            imageAlt: 'Cijferreeks Geheugenspel Cover',
-                            link: './numbers-game/index.html'
-                        },
-                        {
-                            title: 'Woordsom Spel',
-                            description: 'Bereken de som van de letters in een woord, waarbij A=1, B=2, enzovoort.',
-                            imageUrl: './images/cover_word.png',
-                            imageAlt: 'Woordsom Spel Cover',
-                            link: './word-game/index.html'
-                        },
-                        {
-                            title: 'Woordenmozaïek',
-                            description: 'Spel woorden door letters en cijfers in de juiste kleurenvolgorde te selecteren.',
-                            imageUrl: './images/cover_mosaic.png',
-                            imageAlt: 'Woordenmozaïek Spel Cover',
-                            link: './mosaic-game/index.html'
-                        }
-                    ]
-                },
-                en: {
-                    page_title: "Cognitive Game Hub",
-                    main_title: "Cognitive Game Hub",
-                    subtitle: "A collection of cognitive games. Choose a game below to start playing.",
-                    footer_text: "© 2025 Valentijn Leenaers",
-                    games: [
-                        {
-                            title: 'Color Reaction Game',
-                            description: 'Test your reflexes by tapping the screen only when a "correct" color appears.',
-                            imageUrl: 'https://placehold.co/600x400/ebcb8b/2e3440?text=Tap+the+Color',
-                            imageAlt: 'Color Reaction Game Cover',
-                            link: './color-game/index.html'
-                        },
-                        {
-                            title: 'Number Sequence Memory Game',
-                            description: 'Memorize a sequence of numbers, then recall them according to the game mode.',
-                            imageUrl: 'https://placehold.co/600x400/a3be8c/ffffff?text=1...2...3',
-                            imageAlt: 'Number Sequence Memory Game Cover',
-                            link: './numbers-game/index.html'
-                        },
-                        {
-                            title: 'Word Sum Game',
-                            description: 'Calculate the sum of the letters in a word, where A=1, B=2, and so on.',
-                            imageUrl: 'https://placehold.co/600x400/bf616a/ffffff?text=A+%2B+1',
-                            imageAlt: 'Word Sum Game Cover',
-                            link: './word-game/index.html'
-                        },
-                        {
-                            title: 'Lexi-Mosaic Game',
-                            description: 'Spell words by selecting letters and numbers in the correct color sequence.',
-                            imageUrl: 'https://placehold.co/600x400/5e81ac/ffffff?text=A+B+C',
-                            imageAlt: 'Lexi-Mosaic Game Cover',
-                            link: './mosaic-game/index.html'
-                        }
-                    ]
+        // 1. Single source of truth for game data (order, images, links)
+        const gameData = [
+            {
+                id: 'color-game',
+                link: './color-game/index.html',
+                imageUrl: './images/cover_color.png',
+            },
+            {
+                id: 'numbers-game',
+                link: './numbers-game/index.html',
+                imageUrl: './images/cover_number.png',
+            },
+            {
+                id: 'word-game',
+                link: './word-game/index.html',
+                imageUrl: './images/cover_word.png',
+            },
+            {
+                id: 'mosaic-game',
+                link: './mosaic-game/index.html',
+                imageUrl: './images/cover_mosaic.png',
+            }
+        ];
+
+        // 2. Translations now only contain text content
+        const translations = {
+            nl: {
+                page_title: "Cognitieve Game Hub",
+                main_title: "Cognitieve Game Hub",
+                subtitle: "Een verzameling cognitieve spellen. Kies hieronder een spel om te beginnen.",
+                footer_text: "© 2025 Valentijn Leenaers",
+                games: {
+                    'color-game': {
+                        title: 'Kleurenflits Spel',
+                        description: 'Test je reflexen door alleen op het scherm te tikken als een "juiste" kleur verschijnt.',
+                        imageAlt: 'Kleurenflits Spel Cover',
+                    },
+                    'numbers-game': {
+                        title: 'Cijferreeks Geheugenspel',
+                        description: 'Onthoud een reeks cijfers en roep ze vervolgens terug volgens de spelmodus.',
+                        imageAlt: 'Cijferreeks Geheugenspel Cover',
+                    },
+                    'word-game': {
+                        title: 'Woordsom Spel',
+                        description: 'Bereken de som van de letters in een woord, waarbij A=1, B=2, enzovoort.',
+                        imageAlt: 'Woordsom Spel Cover',
+                    },
+                    'mosaic-game': {
+                        title: 'Woordenmozaïek',
+                        description: 'Spel woorden door letters en cijfers in de juiste kleurenvolgorde te selecteren.',
+                        imageAlt: 'Woordenmozaïek Spel Cover',
+                    }
                 }
-            };
+            },
+            en: {
+                page_title: "Cognitive Game Hub",
+                main_title: "Cognitive Game Hub",
+                subtitle: "A collection of cognitive games. Choose a game below to start playing.",
+                footer_text: "© 2025 Valentijn Leenaers",
+                games: {
+                    'color-game': {
+                        title: 'Color Reaction Game',
+                        description: 'Test your reflexes by tapping the screen only when a "correct" color appears.',
+                        imageAlt: 'Color Reaction Game Cover',
+                    },
+                    'numbers-game': {
+                        title: 'Number Sequence Memory Game',
+                        description: 'Memorize a sequence of numbers, then recall them according to the game mode.',
+                        imageAlt: 'Number Sequence Memory Game Cover',
+                    },
+                    'word-game': {
+                        title: 'Word Sum Game',
+                        description: 'Calculate the sum of the letters in a word, where A=1, B=2, and so on.',
+                        imageAlt: 'Word Sum Game Cover',
+                    },
+                    'mosaic-game': {
+                        title: 'Lexi-Mosaic Game',
+                        description: 'Spell words by selecting letters and numbers in the correct color sequence.',
+                        imageAlt: 'Lexi-Mosaic Game Cover',
+                    }
+                }
+            }
+        };
 
-            const langNlBtn = document.getElementById('lang-nl');
-            const langEnBtn = document.getElementById('lang-en');
+        const langNlBtn = document.getElementById('lang-nl');
+        const langEnBtn = document.getElementById('lang-en');
 
-            const getLangFromURL = () => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const lang = urlParams.get('lang');
-                return (lang === 'en' || lang === 'nl') ? lang : null;
-            };
+        const getLangFromURL = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const lang = urlParams.get('lang');
+            return (lang === 'en' || lang === 'nl') ? lang : null;
+        };
+        
+        // 3. renderGameCards is updated to combine the two data sources
+        const renderGameCards = (lang) => {
+            const gameGrid = document.getElementById('game-grid');
+            const gameTranslations = translations[lang].games;
+            gameGrid.innerHTML = ''; // Clear existing cards
 
-            const renderGameCards = (lang) => {
-                const gameGrid = document.getElementById('game-grid');
-                const games = translations[lang].games;
-                gameGrid.innerHTML = ''; // Clear existing cards
+            gameData.forEach(game => {
+                const trans = gameTranslations[game.id];
+                if (!trans) return; // Skip if a translation is missing
 
-                games.forEach(game => {
-                    const cardHTML = `
-                        <a href="${game.link}?lang=${lang}" class="game-card group no-underline text-current bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden" aria-label="Play ${game.title}">
-                            <img class="w-full aspect-square object-cover" src="${game.imageUrl}" alt="${game.imageAlt}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/333333?text=Image+Not+Found';">
-                            <div class="p-6 flex-grow flex flex-col">
-                                <h2 class="text-xl font-bold mb-2 text-slate-800">${game.title}</h2>
-                                <p class="text-slate-600 text-sm flex-grow">${game.description}</p>
-                                <div class="mt-6">
-                                    <div class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg group-hover:bg-blue-500 transition-colors">
-                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <polygon points="5 3 19 12 5 21"></polygon>
-                                        </svg>
-                                    </div>
+                const cardHTML = `
+                    <a href="${game.link}?lang=${lang}" class="game-card group no-underline text-current bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden" aria-label="Play ${trans.title}">
+                        <img class="w-full aspect-square object-cover" src="${game.imageUrl}" alt="${trans.imageAlt}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/333333?text=Image+Not+Found';">
+                        <div class="p-6 flex-grow flex flex-col">
+                            <h2 class="text-xl font-bold mb-2 text-slate-800">${trans.title}</h2>
+                            <p class="text-slate-600 text-sm flex-grow">${trans.description}</p>
+                            <div class="mt-6">
+                                <div class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg group-hover:bg-blue-500 transition-colors">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="5 3 19 12 5 21"></polygon>
+                                    </svg>
                                 </div>
                             </div>
-                        </a>
-                    `;
-                    gameGrid.innerHTML += cardHTML;
-                });
-            };
+                        </div>
+                    </a>
+                `;
+                gameGrid.innerHTML += cardHTML;
+            });
+        };
 
-            const setLanguage = (lang) => {
-                const t = translations[lang];
-                
-                document.documentElement.lang = lang;
-                document.title = t.page_title;
+        const setLanguage = (lang) => {
+            const t = translations[lang];
+            
+            document.documentElement.lang = lang;
+            document.title = t.page_title;
 
-                document.getElementById('main-title').textContent = t.main_title;
-                document.getElementById('subtitle').textContent = t.subtitle;
-                document.getElementById('footer-text').textContent = t.footer_text;
-                
-                renderGameCards(lang);
+            document.getElementById('main-title').textContent = t.main_title;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('footer-text').textContent = t.footer_text;
+            
+            renderGameCards(lang);
 
-                if (lang === 'nl') {
-                    langNlBtn.classList.add('active');
-                    langEnBtn.classList.remove('active');
-                } else {
-                    langEnBtn.classList.add('active');
-                    langNlBtn.classList.remove('active');
-                }
+            if (lang === 'nl') {
+                langNlBtn.classList.add('active');
+                langEnBtn.classList.remove('active');
+            } else {
+                langEnBtn.classList.add('active');
+                langNlBtn.classList.remove('active');
+            }
 
-                localStorage.setItem('gameHubLang', lang);
-            };
+            localStorage.setItem('gameHubLang', lang);
+        };
 
-            langNlBtn.addEventListener('click', () => setLanguage('nl'));
-            langEnBtn.addEventListener('click', () => setLanguage('en'));
+        langNlBtn.addEventListener('click', () => setLanguage('nl'));
+        langEnBtn.addEventListener('click', () => setLanguage('en'));
 
-            const initialLang = getLangFromURL() || localStorage.getItem('gameHubLang') || 'nl';
-            setLanguage(initialLang);
-        });
-    </script>
+        const initialLang = getLangFromURL() || localStorage.getItem('gameHubLang') || 'nl';
+        setLanguage(initialLang);
+    });
+</script>
 </body>
 </html>
