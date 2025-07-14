@@ -45,6 +45,16 @@
          * - Full internationalization support (Dutch/English) with massively expanded word lists.
          */
 
+        // Function to get language from URL
+        function getLangFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const lang = urlParams.get('lang');
+            if (lang === 'en' || lang === 'nl') {
+                return lang;
+            }
+            return null;
+        }
+        
         const { useState, useEffect, useRef, useCallback } = React;
 
         // --- Icon Components ---
@@ -137,7 +147,7 @@
 
         // --- Main Game Component ---
         const WordSumGame = () => {
-            const [language, setLanguage] = useState(() => getCookie('wordSumLang') || 'nl');
+            const [language, setLanguage] = useState(() => getLangFromURL() || getCookie('wordSumLang') || 'nl');
             const [gameState, setGameState] = useState('idle');
             const [score, setScore] = useState(0);
             const [roundsPlayed, setRoundsPlayed] = useState(0);
