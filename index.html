@@ -31,12 +31,13 @@
 <body class="bg-slate-100 text-slate-900">
 
     <div class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
-        <div class="absolute top-4 right-4 flex gap-2">
+        <div class="relative w-full max-w-6xl">
+        <div class="absolute top-0 right-0 flex gap-2 z-10">
             <button id="lang-nl" class="lang-btn p-2 rounded-full text-2xl transition-transform">🇳🇱</button>
             <button id="lang-en" class="lang-btn p-2 rounded-full text-2xl transition-transform">🇬🇧</button>
         </div>
 
-        <header class="text-center mb-10 sm:mb-16">
+        <header class="text-center mb-10 sm:mb-16 pt-14 sm:pt-0">
             <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
                 <span id="main-title" class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-sky-500"></span>
             </h1>
@@ -48,7 +49,7 @@
                 </div>
         </main>
         
-        <footer class="fixed bottom-4 left-0 right-0 text-center z-10">
+        <footer class="w-full text-center pt-8 pb-4">
             <p id="footer-text" class="text-xs text-gray-400 opacity-80"></p>
         </footer>
     </div>
