@@ -80,7 +80,7 @@
         const XIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M18 6L6 18" }), React.createElement('path', { key: 2, d: "M6 6l12 12" })]);
         const CheckIcon = ({ className }) => React.createElement('svg', { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", className }, React.createElement('polyline', { points: "20 6 9 17 4 12" }));
         const XCircleIcon = ({ className }) => React.createElement('svg', { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className }, [React.createElement('circle', { key: 1, cx: 12, cy: 12, r: 10 }), React.createElement('line', { key: 2, x1: 15, y1: 9, x2: 9, y2: 15 }), React.createElement('line', { key: 3, x1: 9, y1: 9, x2: 15, y2: 15 })]);
-        const InfoIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('circle', { cx: 12, cy: 12, r: 10 }), React.createElement('line', { x1: 12, y1: 16, x2: 12, y2: 12 }), React.createElement('line', { x1: 12, y1: 8, x2: 12.01, y2: 8 })]);
+        const HelpCircleIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('circle', { key: 1, cx: "12", cy: "12", r: "10" }), React.createElement('path', { key: 2, d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }), React.createElement('path', { key: 3, d: "M12 17h.01" })]);
         const LightbulbIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" }), React.createElement('path', { key: 2, d: "M9 18h6" }), React.createElement('path', { key: 3, d: "M10 22h4" })]);
         const EyeIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" }), React.createElement('circle', { key: 2, cx: "12", cy: "12", r: "3" })]);
         const EyeOffIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M9.88 9.88a3 3 0 1 0 4.24 4.24" }), React.createElement('path', { key: 2, d: "M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" }), React.createElement('path', { key: 3, d: "M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" }), React.createElement('line', { key: 4, x1: "2", x2: "22", y1: "2", y2: "22" })]);
@@ -105,8 +105,6 @@
             React.createElement('path', { key: 4, d: "M17 4v16" })
         ]);
         const HomeIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }), React.createElement('polyline', { points: "9 22 9 12 15 12 15 22" })]);
-        const GamepadIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { d: "M6 11.002V11a5 5 0 1 1 5 5H6.002Z" }), React.createElement('path', { d: "M17 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" }), React.createElement('path', { d: "M14 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" }), React.createElement('path', { d: "M10 6.001H8V8" }), React.createElement('path', { d: "M6 12H4" })]);
-
 
         // --- Word Lists ---
         const wordLists = {
@@ -171,23 +169,10 @@
                 tryLeft: "more try",
                 triesLeft: "more tries",
                 helpTitle: "How to Play",
-                helpDesc: "Change settings using the buttons below. Changing a setting will restart the game.",
-                helpGamePlay: "Gameplay",
-                helpGamePlayDesc: "A word appears, and you must spell it by clicking items. For each letter (e.g., 'C'), first click the letter 'C', then its matching number (A=1, B=2, C=3).",
-                helpDifficultyLevels: "Difficulty",
-                helpDifficultyLevelsDesc: "Changes the length and complexity of the words you need to spell.",
-                helpColorRule: "Color Rule",
-                helpColorRuleDesc: "Defines the required color for each item you click. You can use presets or create a custom repeating pattern for letters and numbers.",
-                helpSumChallenge: "Sum Challenge",
-                helpSumChallengeDesc: "If active, you must enter the total sum of all numbers clicked at the end of the round.",
-                helpShuffle: "Shuffle Board",
-                helpShuffleDesc: "When on, the position of all items on the board will be randomized at the start of each new round.",
-                helpShowWord: "Show Word",
-                helpShowWordDesc: "Keeps the target word visible during your turn, highlighting the current letter you need to find.",
-                helpShowHint: "Show Hint",
-                helpShowHintDesc: "Reveals the exact type, value, and color of the next item you need to click.",
-                helpMainSettings: "Main Settings",
-                helpMainSettingsDesc: "Opens the panel for changing the game's language.",
+                helpDesc1: "A word will be shown. Your task is to spell it out by clicking items on the board.",
+                helpDesc2: "For each letter in the word (e.g., 'C'), you must first click the letter 'C' and then its corresponding number (A=1, B=2, C=3, etc.).",
+                helpDesc3: "The game will enforce a color rule (e.g., alternating black and blue). Use the 'Hint' button if you get stuck.",
+                helpDesc4: "The 'Sum Challenge' asks for the total of all numbers at the end of the word."
             },
             nl: {
                 title: "Woordmozaïek Spel",
@@ -222,23 +207,10 @@
                 tryLeft: "poging over",
                 triesLeft: "pogingen over",
                 helpTitle: "Spelinstructies",
-                helpDesc: "Wijzig instellingen met de knoppen hieronder. Het wijzigen van een instelling herstart het spel.",
-                helpGamePlay: "Spelverloop",
-                helpGamePlayDesc: "Er verschijnt een woord en je moet het spellen door op items te klikken. Voor elke letter (bijv. 'C'), klik eerst op de letter 'C' en dan op het bijbehorende cijfer (A=1, B=2, C=3).",
-                helpDifficultyLevels: "Moeilijkheidsgraad",
-                helpDifficultyLevelsDesc: "Verandert de lengte en complexiteit van de te spellen woorden.",
-                helpColorRule: "Kleurregel",
-                helpColorRuleDesc: "Bepaalt de vereiste kleur voor elk item dat je aanklikt. Je kunt voorinstellingen gebruiken of een eigen herhalend patroon maken voor letters en cijfers.",
-                helpSumChallenge: "Som Uitdaging",
-                helpSumChallengeDesc: "Indien actief, moet je aan het einde van de ronde de totale som van alle aangeklikte cijfers invoeren.",
-                helpShuffle: "Bord Schudden",
-                helpShuffleDesc: "Indien ingeschakeld, wordt de positie van alle items op het bord aan het begin van elke nieuwe ronde willekeurig bepaald.",
-                helpShowWord: "Toon Woord",
-                helpShowWordDesc: "Houdt het doelwoord zichtbaar tijdens je beurt, waarbij de huidige letter die je moet vinden wordt gemarkeerd.",
-                helpShowHint: "Toon Hint",
-                helpShowHintDesc: "Onthult het exacte type, de waarde en de kleur van het volgende item dat je moet aanklikken.",
-                helpMainSettings: "Hoofdinstellingen",
-                helpMainSettingsDesc: "Opent het paneel om de taal van het spel te wijzigen.",
+                helpDesc1: "Er wordt een woord getoond. Jouw taak is om het te spellen door op items op het bord te klikken.",
+                helpDesc2: "Voor elke letter in het woord (bijv. 'C'), moet je eerst op de letter 'C' klikken en daarna op het bijbehorende cijfer (A=1, B=2, C=3, etc.).",
+                helpDesc3: "Het spel dwingt een kleurregel af (bijv. afwisselend zwart en blauw). Gebruik de 'Hint' knop als je vastzit.",
+                helpDesc4: "De 'Som Uitdaging' vraagt aan het einde van het woord om het totaal van alle cijfers."
             }
         };
 
@@ -296,7 +268,10 @@
             const activeRules = colorRules[language];
             
             const handleLanguageChange = (newLang) => {
+                // Set the language state, which will trigger a re-render
                 setLanguage(newLang);
+
+                // Update the browser's URL without reloading the page
                 const url = new URL(window.location);
                 url.searchParams.set('lang', newLang);
                 window.history.pushState({}, '', url);
@@ -436,14 +411,17 @@
             const handleItemClick = (clickedItem) => {
                 if (gameState !== 'playerTurn' || lastCorrectClickId || incorrectClickId) return;
 
+                // Use the single source of truth for game logic
                 const expected = getExpectedProperties();
-                if (!expected) return;
+                if (!expected) return; // Safety check
 
+                // Check the clicked item against the expected properties
                 const isTypeCorrect = clickedItem.type === expected.type;
                 const isValueCorrect = clickedItem.value == expected.value;
                 const isColorCorrect = (expected.color === 'any') || (clickedItem.color === expected.color);
 
                 if (isTypeCorrect && isValueCorrect && isColorCorrect) {
+                    // --- Correct Click ---
                     setLastCorrectClickId(clickedItem.id);
                     setTimeout(() => setLastCorrectClickId(null), 400);
 
@@ -452,6 +430,7 @@
                     setCurrentStepIndex(nextStep);
                     setShowHint(false);
 
+                    // Check if the word is complete
                     if (nextStep >= currentWord.length * 2) {
                         if (askForSum) {
                             setGameState('askingForSum');
@@ -461,6 +440,7 @@
                         }
                     }
                 } else {
+                    // --- Incorrect Click ---
                     setIncorrectClickId(clickedItem.id);
                     setTimeout(() => setIncorrectClickId(null), 500);
                 }
@@ -478,11 +458,14 @@
                 } else {
                     const newTriesLeft = sumTriesLeft - 1;
                     setSumTriesLeft(newTriesLeft);
+
+                    // Trigger shake animation
                     setIsSumInputIncorrect(true);
                     setTimeout(() => setIsSumInputIncorrect(false), 500);
-                    setSumInput('');
+                    setSumInput(''); // Clear input for next try
 
                     if (newTriesLeft <= 0) {
+                        // End the round after the last failed try
                         endRound(false, { correct: correctSum, player: playerSum });
                     }
                 }
@@ -524,7 +507,7 @@
                 const expectedType = isLetterStep ? 'letter' : 'number';
                 const expectedValue = isLetterStep ? char : char.charCodeAt(0) - 64;
 
-                let expectedColor = 'any';
+                let expectedColor = 'any'; // Default for 'free choice'
 
                 switch (activeColorRuleId) {
                     case 'allBlack':
@@ -535,12 +518,16 @@
                         break;
                     case 'custom':
                         const typeKey = isLetterStep ? 'letter' : 'number';
-                        const patternSteps = customRule[typeKey];
+                        const patternSteps = customRule[typeKey]; // Get the ordered array of steps
+
                         const firstStep = patternSteps[0];
                         const secondStep = patternSteps[1];
+
                         const totalStepsInPattern = firstStep.steps + secondStep.steps;
+
                         if (totalStepsInPattern > 0) {
                             const stepInPattern = charIndex % totalStepsInPattern;
+                            // Check if we are in the first part of the pattern or the second
                             expectedColor = stepInPattern < firstStep.steps ? firstStep.color : secondStep.color;
                         }
                         break;
@@ -548,6 +535,7 @@
                 return { type: expectedType, value: expectedValue, color: expectedColor };
             };
 
+            // --- UseEffect hooks for saving settings to cookies ---
             useEffect(() => { setCookie('cognitiveGameLang', language); }, [language]);
             useEffect(() => { setCookie('cognitiveGameDifficulty', difficulty); }, [difficulty]);
             useEffect(() => { setCookie('cognitiveGameColorRule', activeColorRuleId); }, [activeColorRuleId]);
@@ -555,6 +543,10 @@
             useEffect(() => { setCookie('cognitiveGameShuffle', shouldShufflePerRound); }, [shouldShufflePerRound]);
 
             const renderGameArea = () => {
+                const mainContainerClass = (gameState === 'playerTurn' || gameState === 'askingForSum')
+                    ? 'flex-1 flex flex-col'
+                    : 'flex-1 flex justify-center items-center';
+
                 switch (gameState) {
                     case 'presentingWord':
                         return React.createElement('div', { className: 'text-center' }, [
@@ -577,6 +569,7 @@
                                     const article = expected.type === 'letter' ? 'de' : 'het';
                                     hint = `${t.hintPrompt} ${article} ${colorText} ${typeText} "${expected.value}"`;
                                 } else {
+                                    // English has "the" baked into hintPrompt
                                     hint = `${t.hintPrompt} ${colorText} ${typeText} "${expected.value}"`;
                                 }
 
@@ -661,43 +654,23 @@
                 }
             };
             
-            const HelpModal = () => {
-                const HelpItem = ({ icons, title, description }) => React.createElement('div', { className: 'flex flex-col sm:flex-row items-start gap-3 sm:gap-6 p-3 bg-gray-50 rounded-lg' }, [
-                    React.createElement('div', { className: 'flex items-center justify-center gap-2 h-10 text-gray-600 shrink-0 sm:w-20' }, icons),
-                    React.createElement('div', {}, [
-                        React.createElement('h4', { className: 'font-semibold text-gray-800' }, title),
-                        React.createElement('p', { className: 'text-gray-600 text-sm' }, description)
-                    ])
-                ]);
-
-                const helpItems = [
-                    { icons: [React.createElement(GamepadIcon)], title: t.helpGamePlay, description: t.helpGamePlayDesc },
-                    { icons: [React.createElement('span', {className: 'text-sm font-semibold' }, t.difficultyEasy)], title: t.helpDifficultyLevels, description: t.helpDifficultyLevelsDesc },
-                    { icons: [React.createElement(SlidersIcon)], title: t.helpColorRule, description: t.helpColorRuleDesc },
-                    { icons: [React.createElement(SigmaIcon)], title: t.helpSumChallenge, description: t.helpSumChallengeDesc },
-                    { icons: [React.createElement(ShuffleIcon)], title: t.helpShuffle, description: t.helpShuffleDesc },
-                    { icons: [React.createElement(EyeIcon)], title: t.helpShowWord, description: t.helpShowWordDesc },
-                    { icons: [React.createElement(LightbulbIcon)], title: t.helpShowHint, description: t.helpShowHintDesc },
-                    { icons: [React.createElement(SettingsIcon)], title: t.helpMainSettings, description: t.helpMainSettingsDesc }
-                ];
-
-                return React.createElement('div', { className: "absolute inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center", onClick: () => setShowHelp(false) },
-                    React.createElement('div', { className: 'bg-white w-full h-full overflow-y-auto p-6 z-50 sm:h-auto sm:max-h-[90vh] sm:rounded-xl sm:shadow-2xl sm:max-w-2xl', onClick: e => e.stopPropagation() }, [
-                        React.createElement('div', { key: 'stitle', className: 'flex justify-between items-center' }, [
-                            React.createElement('h2', { className: 'text-2xl font-bold text-gray-800' }, t.helpTitle),
-                            React.createElement('button', { onClick: () => setShowHelp(false), className: 'p-2 rounded-full hover:bg-gray-100' }, React.createElement(XIcon))
-                        ]),
-                        React.createElement('p', { className: 'text-gray-600 mt-2 mb-6' }, t.helpDesc),
-                        React.createElement('div', { className: 'space-y-4' }, 
-                            helpItems.map((item, index) => React.createElement(HelpItem, { key: index, ...item }))
-                        )
-                    ])
-                );
-            };
-
+            const HelpModal = () => React.createElement('div', { className: "absolute inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center p-4", onClick: () => setShowHelp(false) }, 
+                React.createElement('div', { className: 'bg-white rounded-xl shadow-2xl w-full max-w-lg m-4 p-6 space-y-4 z-50', onClick: e => e.stopPropagation() }, [
+                    React.createElement('div', { key: 'htitle', className: 'flex justify-between items-center' }, [
+                        React.createElement('h2', { className: 'text-2xl font-bold text-gray-800' }, t.helpTitle),
+                        React.createElement('button', { onClick: () => setShowHelp(false), className: 'p-2 rounded-full hover:bg-gray-100' }, React.createElement(XIcon))
+                    ]),
+                    React.createElement('p', { className: 'text-gray-600' }, t.helpDesc1),
+                    React.createElement('p', { className: 'text-gray-600' }, t.helpDesc2),
+                    React.createElement('p', { className: 'text-gray-600' }, t.helpDesc3),
+                    React.createElement('p', { className: 'text-gray-600' }, t.helpDesc4),
+                ])
+            );
+            
             const ColorRulePopover = ({ t, language, buttonRef, activeRules, activeRuleId, customRule, onSelect, onCustomChange, onOrderSwap, onClose }) => {
                 const popoverRef = useRef(null);
 
+                // Generate a preview sequence
                 let previewSequence = [];
                 if (activeRuleId === 'custom') {
                     for (let i = 0; i < 12; i++) {
@@ -717,6 +690,7 @@
                     }
                 }
 
+                // Effect to handle clicking outside the popover AND the button
                 useEffect(() => {
                     const handleClickOutside = (event) => {
                         if (
@@ -730,6 +704,7 @@
                     return () => document.removeEventListener("mousedown", handleClickOutside);
                 }, [popoverRef, buttonRef, onClose]);
 
+                // Helper function to render a single input row
                 const renderInputRow = (pattern, index, type) => {
                     const blackText = language === 'nl' ? 'Zwart' : 'Black';
                     const blueText = language === 'nl' ? 'Blauw' : 'Blue';
@@ -739,6 +714,7 @@
                     ]);
                 };
 
+                // Helper function to render a full column
                 const renderInputColumn = (type) => React.createElement('div', { key: type, className: 'flex-1 flex flex-col' }, [
                     React.createElement('h4', { className: 'text-center font-bold text-gray-700 mb-2' }, type === 'letter' ? t.letter.charAt(0).toUpperCase() + t.letter.slice(1) : t.number.charAt(0).toUpperCase() + t.number.slice(1)),
                     renderInputRow(customRule[type][0], 0, type),
@@ -767,75 +743,82 @@
                     ]),
                     React.createElement('div', { key: 'controls', className: "flex gap-2" }, [
                         React.createElement('button', { key: 'settings', onClick: () => setShowSettings(true), className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(SettingsIcon)),
-                        React.createElement('button', { key: 'help', onClick: () => setShowHelp(true), className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(InfoIcon)),
                         React.createElement('button', { key: 'reset', onClick: resetGame, className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(RotateCcwIcon, {})),
                         React.createElement('button', { key: 'play', onClick: startRound, disabled: gameState !== 'idle' && gameState === 'playerTurn', className: "p-2 rounded-lg transition-colors bg-green-500 hover:bg-green-400 text-white disabled:bg-gray-300" }, React.createElement(PlayIcon))
                     ])
                 ]),
                 
-                React.createElement('div', { key: 'quick-controls', className: 'p-2 bg-white border-b border-gray-200 flex flex-wrap items-center justify-center gap-2 text-sm' }, [
-                    React.createElement('button', {
-                        onClick: () => handleSettingChange(setDifficulty, d => d === 'easy' ? 'medium' : d === 'medium' ? 'hard' : 'easy'),
-                        className: `h-10 px-4 rounded-lg font-semibold transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200`
-                    }, t[`difficulty${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`]),
-                    React.createElement('div', { className: 'relative' }, [
+                React.createElement('div', { key: 'quick-controls', className: 'p-2 bg-white border-b border-gray-200 flex items-center gap-2' }, [
+                    // This new div wraps the old buttons and pushes the help button right
+                    React.createElement('div', { className: 'flex-grow flex items-center justify-center gap-2' }, [
                         React.createElement('button', {
-                            ref: colorPopoverButtonRef,
-                            onClick: () => setIsColorPopoverOpen(p => !p),
-                            className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${isColorPopoverOpen ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
-                            title: "Change Color Rule"
-                        }, React.createElement(SlidersIcon)),
+                            onClick: () => handleSettingChange(setDifficulty, d => d === 'easy' ? 'medium' : d === 'medium' ? 'hard' : 'easy'),
+                            className: `h-10 px-4 rounded-lg font-semibold transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200 text-sm`
+                        }, t[`difficulty${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`]),
+                        React.createElement('div', { className: 'relative' }, [
+                            React.createElement('button', {
+                                ref: colorPopoverButtonRef,
+                                onClick: () => setIsColorPopoverOpen(p => !p),
+                                className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${isColorPopoverOpen ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
+                                title: "Change Color Rule"
+                            }, React.createElement(SlidersIcon)),
 
-                        isColorPopoverOpen && React.createElement(ColorRulePopover, {
-                            t: t,
-                            language: language,
-                            buttonRef: colorPopoverButtonRef,
-                            activeRules: activeRules,
-                            activeRuleId: activeColorRuleId,
-                            customRule: customRule,
-                            onSelect: (ruleId) => {
-                                setActiveColorRuleId(ruleId);
-                                if (ruleId !== 'custom') {
-                                    setIsColorPopoverOpen(false);
-                                }
-                            },
-                            onCustomChange: (type, index, value) => {
-                                if (!isNaN(value) && value >= 0 && value <= 10) {
-                                    setCustomRule(p => {
-                                        const newPattern = [...p[type]];
-                                        newPattern[index] = { ...newPattern[index], steps: value };
-                                        return { ...p, [type]: newPattern };
-                                    });
-                                }
-                            },
-                            onOrderSwap: (type) => {
-                                setCustomRule(p => ({
-                                    ...p,
-                                    [type]: [p[type][1], p[type][0]]
-                                }));
-                            },
-                            onClose: () => setIsColorPopoverOpen(false)
-                        })
+                            isColorPopoverOpen && React.createElement(ColorRulePopover, {
+                                t: t,
+                                language: language,
+                                buttonRef: colorPopoverButtonRef,
+                                activeRules: activeRules,
+                                activeRuleId: activeColorRuleId,
+                                customRule: customRule,
+                                onSelect: (ruleId) => {
+                                    setActiveColorRuleId(ruleId);
+                                    if (ruleId !== 'custom') {
+                                        setIsColorPopoverOpen(false);
+                                    }
+                                },
+                                onCustomChange: (type, index, value) => {
+                                    if (!isNaN(value) && value >= 0 && value <= 10) {
+                                        setCustomRule(p => {
+                                            const newPattern = [...p[type]];
+                                            newPattern[index] = { ...newPattern[index], steps: value };
+                                            return { ...p, [type]: newPattern };
+                                        });
+                                    }
+                                },
+                                onOrderSwap: (type) => {
+                                    setCustomRule(p => ({
+                                        ...p,
+                                        [type]: [p[type][1], p[type][0]]
+                                    }));
+                                },
+                                onClose: () => setIsColorPopoverOpen(false)
+                            })
+                        ]),
+                        React.createElement('button', {
+                            onClick: () => setAskForSum(p => !p),
+                            className: `h-10 w-10 flex items-center justify-center rounded-lg font-bold text-xl transition-colors ${askForSum ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
+                            title: askForSum ? t.sumChallengeOn : t.sumChallengeOff
+                        }, React.createElement(SigmaIcon)),
+                        React.createElement('button', {
+                            onClick: () => setShouldShufflePerRound(p => !p),
+                            className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${shouldShufflePerRound ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
+                            title: "Shuffle board each round"
+                        }, React.createElement(ShuffleIcon)),
+                        React.createElement('button', {
+                            onClick: () => setIsWordPermanentlyVisible(p => !p),
+                            className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${isWordPermanentlyVisible ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`
+                        }, isWordPermanentlyVisible ? React.createElement(EyeIcon) : React.createElement(EyeOffIcon)),
+                        React.createElement('button', {
+                            onClick: () => setShowHint(p => !p),
+                            disabled: gameState !== 'playerTurn',
+                            className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors bg-yellow-100 text-yellow-600 hover:bg-yellow-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed`
+                        }, React.createElement(LightbulbIcon)),
                     ]),
-                    React.createElement('button', {
-                        onClick: () => setAskForSum(p => !p),
-                        className: `h-10 w-10 flex items-center justify-center rounded-lg font-bold text-xl transition-colors ${askForSum ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
-                        title: askForSum ? t.sumChallengeOn : t.sumChallengeOff
-                    }, React.createElement(SigmaIcon)),
-                    React.createElement('button', {
-                        onClick: () => setShouldShufflePerRound(p => !p),
-                        className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${shouldShufflePerRound ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
-                        title: "Shuffle board each round"
-                    }, React.createElement(ShuffleIcon)),
-                    React.createElement('button', {
-                        onClick: () => setIsWordPermanentlyVisible(p => !p),
-                        className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${isWordPermanentlyVisible ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`
-                    }, isWordPermanentlyVisible ? React.createElement(EyeIcon) : React.createElement(EyeOffIcon)),
-                    React.createElement('button', {
-                        onClick: () => setShowHint(p => !p),
-                        disabled: gameState !== 'playerTurn',
-                        className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors bg-yellow-100 text-yellow-600 hover:bg-yellow-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed`
-                    }, React.createElement(LightbulbIcon)),
+                    // This is the new help button, now at the end of the bar
+                    React.createElement('button', { 
+                        onClick: () => setShowHelp(true), 
+                        className: 'h-10 px-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors flex-shrink-0' 
+                    }, React.createElement(InfoIcon))
                 ]),
                 
                 React.createElement('main', { key: 'game-area', className: `${(gameState === 'playerTurn' || gameState === 'askingForSum') ? 'flex-1 flex flex-col' : 'flex-1 flex justify-center items-center'} ${(showSettings || showHelp || isColorPopoverOpen) ? 'relative z-0' : ''}`.trim() }, renderGameArea()),
