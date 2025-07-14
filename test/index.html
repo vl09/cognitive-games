@@ -307,6 +307,8 @@
             const [shouldShufflePerRound, setShouldShufflePerRound] = useState(() => getCookie('cognitiveGameShuffle') ?? true);
             const shuffleRef = useRef(shouldShufflePerRound);
             
+            const isInitialRender = useRef(true); //
+            
             useEffect(() => {
                 const checkScreenSize = () => {
                     // Set state based on screen width
