@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Val's Spelletjes Hub</title>
+    <title>Cognitieve Game Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,15 +23,11 @@
             transform: scale(1.1);
             box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); /* blue-400 with opacity */
         }
-        /* Style to prevent content layout shift before JS loads */
-        [data-translate] {
-            min-height: 1.2em; /* Adjust as needed */
-        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900">
 
-     <div class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+    <div class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
         <div class="absolute top-4 right-4 flex gap-2">
             <button id="lang-nl" class="lang-btn p-2 rounded-full text-2xl transition-transform">🇳🇱</button>
             <button id="lang-en" class="lang-btn p-2 rounded-full text-2xl transition-transform">🇬🇧</button>
@@ -39,117 +35,96 @@
 
         <header class="text-center mb-10 sm:mb-16">
             <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
-                <span id="main-title" class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-sky-500">
-                    </span>
+                <span id="main-title" class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-sky-500"></span>
             </h1>
-            <p id="subtitle" class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto" data-translate>
-                </p>
+            <p id="subtitle" class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto"></p>
         </header>
 
         <main class="w-full max-w-6xl">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-
-                <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
-                    <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/5e81ac/ffffff?text=A+B+C" alt="Lexi-Mosaic Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/5e81ac/ffffff?text=Image+Not+Found';">
-                    <div class="p-6 flex-grow flex flex-col">
-                        <h2 id="game1-title" class="text-xl font-bold mb-2 text-slate-800" data-translate></h2>
-                        <p id="game1-desc" class="text-slate-600 text-sm flex-grow" data-translate></p>
-                        <div class="mt-6">
-                            <a href="./mosaic-game/index.html" id="game1-btn" class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors" aria-label="Play Game 1">
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="5 3 19 12 5 21"></polygon>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
+            <div id="game-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 </div>
-
-                <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
-                    <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/bf616a/ffffff?text=A+%2B+1" alt="Word Sum Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/bf616a/ffffff?text=Image+Not+Found';">
-                    <div class="p-6 flex-grow flex flex-col">
-                        <h2 id="game2-title" class="text-xl font-bold mb-2 text-slate-800" data-translate></h2>
-                        <p id="game2-desc" class="text-slate-600 text-sm flex-grow" data-translate></p>
-                        <div class="mt-6">
-                           <a href="./word-game/index.html" id="game2-btn" class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors" aria-label="Play Game 2">
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="5 3 19 12 5 21"></polygon>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
-                    <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/a3be8c/ffffff?text=1...2...3" alt="Number Sequence Memory Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/a3be8c/ffffff?text=Image+Not+Found';">
-                    <div class="p-6 flex-grow flex flex-col">
-                        <h2 id="game3-title" class="text-xl font-bold mb-2 text-slate-800" data-translate></h2>
-                        <p id="game3-desc" class="text-slate-600 text-sm flex-grow" data-translate></p>
-                        <div class="mt-6">
-                            <a href="./numbers-game/index.html" id="game3-btn" class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors" aria-label="Play Game 3">
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="5 3 19 12 5 21"></polygon>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
-                    <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/ebcb8b/2e3440?text=Tap+the+Color" alt="Color Reaction Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/ebcb8b/2e3440?text=Image+Not+Found';">
-                    <div class="p-6 flex-grow flex flex-col">
-                        <h2 id="game4-title" class="text-xl font-bold mb-2 text-slate-800" data-translate></h2>
-                        <p id="game4-desc" class="text-slate-600 text-sm flex-grow" data-translate></p>
-                        <div class="mt-6">
-                            <a href="./color-game/index.html" id="game4-btn" class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors" aria-label="Play Game 4">
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="5 3 19 12 5 21"></polygon>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
         </main>
 
         <footer class="text-center mt-10 sm:mt-16">
-            <p id="footer-text" class="text-slate-500 text-sm">
-                </p>
+            <p id="footer-text" class="text-slate-500 text-sm"></p>
         </footer>
     </div>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // Centralized translations object
             const translations = {
                 nl: {
                     page_title: "Cognitieve Game Hub",
                     main_title: "Cognitieve Game Hub",
                     subtitle: "Een verzameling cognitieve spellen. Kies hieronder een spel om te beginnen.",
-                    game1_title: "Woordenmozaïek",
-                    game1_desc: "Spel woorden door letters en cijfers in de juiste kleurenvolgorde te selecteren.",
-                    game2_title: "Woordsom Spel",
-                    game2_desc: "Bereken de som van de letters in een woord, waarbij A=1, B=2, enzovoort.",
-                    game3_title: "Cijferreeks Geheugen",
-                    game3_desc: "Onthoud een reeks cijfers en roep ze vervolgens terug volgens de spelmodus.",
-                    game4_title: "Kleurenflits Spel",
-                    game4_desc: "Test je reflexen door alleen op het scherm te tikken als een \"juiste\" kleur verschijnt.",
-                    footer_text: "© 2025 Valentijn Leenaers"
+                    footer_text: "© 2025 Valentijn Leenaers",
+                    games: [
+                        {
+                            title: 'Woordenmozaïek',
+                            description: 'Spel woorden door letters en cijfers in de juiste kleurenvolgorde te selecteren.',
+                            imageUrl: 'https://placehold.co/600x400/5e81ac/ffffff?text=A+B+C',
+                            imageAlt: 'Woordenmozaïek Spel Cover',
+                            link: './mosaic-game/index.html'
+                        },
+                        {
+                            title: 'Woordsom Spel',
+                            description: 'Bereken de som van de letters in een woord, waarbij A=1, B=2, enzovoort.',
+                            imageUrl: 'https://placehold.co/600x400/bf616a/ffffff?text=A+%2B+1',
+                            imageAlt: 'Woordsom Spel Cover',
+                            link: './word-game/index.html'
+                        },
+                        {
+                            title: 'Cijferreeks Geheugen',
+                            description: 'Onthoud een reeks cijfers en roep ze vervolgens terug volgens de spelmodus.',
+                            imageUrl: 'https://placehold.co/600x400/a3be8c/ffffff?text=1...2...3',
+                            imageAlt: 'Cijferreeks Geheugen Spel Cover',
+                            link: './numbers-game/index.html'
+                        },
+                        {
+                            title: 'Kleurenflits Spel',
+                            description: 'Test je reflexen door alleen op het scherm te tikken als een "juiste" kleur verschijnt.',
+                            imageUrl: 'https://placehold.co/600x400/ebcb8b/2e3440?text=Tap+the+Color',
+                            imageAlt: 'Kleurenflits Spel Cover',
+                            link: './color-game/index.html'
+                        }
+                    ]
                 },
                 en: {
-                    page_title: "Cognitieve Game Hub",
-                    main_title: "Cognitieve Game Hub",
+                    page_title: "Cognitive Game Hub",
+                    main_title: "Cognitive Game Hub",
                     subtitle: "A collection of cognitive games. Choose a game below to start playing.",
-                    game1_title: "Lexi-Mosaic Game",
-                    game1_desc: "Spell words by selecting letters and numbers in the correct color sequence.",
-                    game2_title: "Word Sum Game",
-                    game2_desc: "Calculate the sum of the letters in a word, where A=1, B=2, and so on.",
-                    game3_title: "Number Sequence Memory",
-                    game3_desc: "Memorize a sequence of numbers, then recall them according to the game mode.",
-                    game4_title: "Color Reaction Game",
-                    game4_desc: "Test your reflexes by tapping the screen only when a \"correct\" color appears.",
-                    footer_text: "© 2025 Valentijn Leenaers"
+                    footer_text: "© 2025 Valentijn Leenaers",
+                    games: [
+                        {
+                            title: 'Lexi-Mosaic Game',
+                            description: 'Spell words by selecting letters and numbers in the correct color sequence.',
+                            imageUrl: 'https://placehold.co/600x400/5e81ac/ffffff?text=A+B+C',
+                            imageAlt: 'Lexi-Mosaic Game Cover',
+                            link: './mosaic-game/index.html'
+                        },
+                        {
+                            title: 'Word Sum Game',
+                            description: 'Calculate the sum of the letters in a word, where A=1, B=2, and so on.',
+                            imageUrl: 'https://placehold.co/600x400/bf616a/ffffff?text=A+%2B+1',
+                            imageAlt: 'Word Sum Game Cover',
+                            link: './word-game/index.html'
+                        },
+                        {
+                            title: 'Number Sequence Memory',
+                            description: 'Memorize a sequence of numbers, then recall them according to the game mode.',
+                            imageUrl: 'https://placehold.co/600x400/a3be8c/ffffff?text=1...2...3',
+                            imageAlt: 'Number Sequence Memory Game Cover',
+                            link: './numbers-game/index.html'
+                        },
+                        {
+                            title: 'Color Reaction Game',
+                            description: 'Test your reflexes by tapping the screen only when a "correct" color appears.',
+                            imageUrl: 'https://placehold.co/600x400/ebcb8b/2e3440?text=Tap+the+Color',
+                            imageAlt: 'Color Reaction Game Cover',
+                            link: './color-game/index.html'
+                        }
+                    ]
                 }
             };
 
@@ -162,40 +137,44 @@
                 return (lang === 'en' || lang === 'nl') ? lang : null;
             };
 
+            const renderGameCards = (lang) => {
+                const gameGrid = document.getElementById('game-grid');
+                const games = translations[lang].games;
+                gameGrid.innerHTML = ''; // Clear existing cards
+
+                games.forEach(game => {
+                    const cardHTML = `
+                        <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
+                            <img class="w-full h-48 object-cover" src="${game.imageUrl}" alt="${game.imageAlt}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/333333?text=Image+Not+Found';">
+                            <div class="p-6 flex-grow flex flex-col">
+                                <h2 class="text-xl font-bold mb-2 text-slate-800">${game.title}</h2>
+                                <p class="text-slate-600 text-sm flex-grow">${game.description}</p>
+                                <div class="mt-6">
+                                    <a href="${game.link}?lang=${lang}" class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors" aria-label="Play ${game.title}">
+                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polygon points="5 3 19 12 5 21"></polygon>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    gameGrid.innerHTML += cardHTML;
+                });
+            };
+
             const setLanguage = (lang) => {
                 const t = translations[lang];
                 
-                // Set page language and document title
                 document.documentElement.lang = lang;
                 document.title = t.page_title;
 
-                // Update header
                 document.getElementById('main-title').textContent = t.main_title;
                 document.getElementById('subtitle').textContent = t.subtitle;
-
-                // Update game cards
-                document.getElementById('game1-title').textContent = t.game1_title;
-                document.getElementById('game1-desc').textContent = t.game1_desc;
-
-                document.getElementById('game2-title').textContent = t.game2_title;
-                document.getElementById('game2-desc').textContent = t.game2_desc;
-
-                document.getElementById('game3-title').textContent = t.game3_title;
-                document.getElementById('game3-desc').textContent = t.game3_desc;
-
-                document.getElementById('game4-title').textContent = t.game4_title;
-                document.getElementById('game4-desc').textContent = t.game4_desc;
-
-                // Update footer
                 document.getElementById('footer-text').textContent = t.footer_text;
                 
-                // Update game links with the language parameter
-                document.querySelectorAll('.game-card a').forEach(link => {
-                    const originalHref = link.href.split('?')[0];
-                    link.href = `${originalHref}?lang=${lang}`;
-                });
+                renderGameCards(lang);
 
-                // Update active button style
                 if (lang === 'nl') {
                     langNlBtn.classList.add('active');
                     langEnBtn.classList.remove('active');
@@ -204,14 +183,12 @@
                     langNlBtn.classList.remove('active');
                 }
 
-                // Save language preference to local storage
                 localStorage.setItem('gameHubLang', lang);
             };
 
             langNlBtn.addEventListener('click', () => setLanguage('nl'));
             langEnBtn.addEventListener('click', () => setLanguage('en'));
 
-            // Set initial language based on URL, then local storage, or default to Dutch
             const initialLang = getLangFromURL() || localStorage.getItem('gameHubLang') || 'nl';
             setLanguage(initialLang);
         });
