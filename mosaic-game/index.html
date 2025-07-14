@@ -39,6 +39,16 @@
     <div id="root"></div>
 
     <script>
+        // Function to get language from URL
+        function getLangFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const lang = urlParams.get('lang');
+            if (lang === 'en' || lang === 'nl') {
+                return lang;
+            }
+            return null;
+        }
+        
         const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
         // --- Cookie Utilities (from your Number Sequence Game) ---
@@ -235,7 +245,7 @@
             });
 
             // --- Settings State (with cookie loading) ---
-            const [language, setLanguage] = useState(() => getCookie('cognitiveGameLang') || 'nl');
+            const [language, setLanguage] = useState(() => getLangFromURL() || getCookie('cognitiveGameLang') || 'nl');
             const [difficulty, setDifficulty] = useState(() => getCookie('cognitiveGameDifficulty') || 'easy');
             const [activeColorRuleId, setActiveColorRuleId] = useState(() => getCookie('cognitiveGameColorRule') || 'alternate_type');
             const [askForSum, setAskForSum] = useState(() => getCookie('cognitiveGameSum') || false);
