@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Val's Game Hub</title>
+    <title>Val's Spelletjes Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,20 +19,30 @@
             transform: translateY(-8px);
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
+        .lang-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); /* blue-400 with opacity */
+        }
     </style>
 </head>
-<body class="bg-slate-900 text-white">
+<body class="bg-slate-100 text-slate-900">
 
     <div class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+        <!-- Language Switcher -->
+        <div class="absolute top-4 right-4 flex gap-2">
+            <button id="lang-nl" class="lang-btn p-2 rounded-full text-2xl transition-transform">🇳🇱</button>
+            <button id="lang-en" class="lang-btn p-2 rounded-full text-2xl transition-transform">🇬🇧</button>
+        </div>
+
         <!-- Header Section -->
         <header class="text-center mb-10 sm:mb-16">
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
-                <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-300">
-                    Val's Game Hub
+            <h1 id="main-title" class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-sky-500">
+                    Val's Spelletjes Hub
                 </span>
             </h1>
-            <p class="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
-                A collection of cognitive games designed by Valentijn Leenaers. Choose a game below to start playing.
+            <p id="subtitle" class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
+                Een verzameling cognitieve spellen ontworpen door Valentijn Leenaers. Kies hieronder een spel om te beginnen.
             </p>
         </header>
 
@@ -41,54 +51,58 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
                 <!-- Game 1: Cognitive Spelling Game -->
-                <div class="game-card bg-slate-50 text-slate-800 rounded-2xl shadow-lg flex flex-col overflow-hidden">
-                    <div class="p-6 flex-grow">
-                        <h2 class="text-xl font-bold mb-2">Cognitive Spelling Game</h2>
-                        <p class="text-slate-600 text-sm">Spell words by selecting letters and numbers in the correct color sequence.</p>
-                    </div>
-                    <div class="p-6 bg-slate-100">
-                        <a href="./cognitive-spelling-game/index.html" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
-                            Play Game
-                        </a>
+                <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
+                    <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/5e81ac/ffffff?text=A+B+C" alt="Cognitive Spelling Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/5e81ac/ffffff?text=Image+Not+Found';">
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h2 id="game1-title" class="text-xl font-bold mb-2 text-slate-800">Cognitief Spelspel</h2>
+                        <p id="game1-desc" class="text-slate-600 text-sm flex-grow">Spel woorden door letters en cijfers in de juiste kleurenvolgorde te selecteren.</p>
+                        <div class="mt-6">
+                            <a href="./cognitive-spelling-game/index.html" id="game1-btn" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
+                                Speel Spel
+                            </a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Game 2: Word Sum Game -->
-                <div class="game-card bg-slate-50 text-slate-800 rounded-2xl shadow-lg flex flex-col overflow-hidden">
-                    <div class="p-6 flex-grow">
-                        <h2 class="text-xl font-bold mb-2">Word Sum Game</h2>
-                        <p class="text-slate-600 text-sm">Calculate the sum of the letters in a word, where A=1, B=2, and so on.</p>
-                    </div>
-                    <div class="p-6 bg-slate-100">
-                        <a href="./word-sum-game/index.html" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
-                            Play Game
-                        </a>
+                <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
+                    <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/bf616a/ffffff?text=A+%2B+1" alt="Word Sum Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/bf616a/ffffff?text=Image+Not+Found';">
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h2 id="game2-title" class="text-xl font-bold mb-2 text-slate-800">Woordsom Spel</h2>
+                        <p id="game2-desc" class="text-slate-600 text-sm flex-grow">Bereken de som van de letters in een woord, waarbij A=1, B=2, enzovoort.</p>
+                        <div class="mt-6">
+                           <a href="./word-sum-game/index.html" id="game2-btn" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
+                                Speel Spel
+                            </a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Game 3: Number Sequence Memory -->
-                <div class="game-card bg-slate-50 text-slate-800 rounded-2xl shadow-lg flex flex-col overflow-hidden">
-                    <div class="p-6 flex-grow">
-                        <h2 class="text-xl font-bold mb-2">Number Sequence Memory</h2>
-                        <p class="text-slate-600 text-sm">Memorize a sequence of numbers, then recall them according to the game mode.</p>
-                    </div>
-                    <div class="p-6 bg-slate-100">
-                        <a href="./number-sequence-memory-game/index.html" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
-                            Play Game
-                        </a>
+                <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
+                    <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/a3be8c/ffffff?text=1...2...3" alt="Number Sequence Memory Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/a3be8c/ffffff?text=Image+Not+Found';">
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h2 id="game3-title" class="text-xl font-bold mb-2 text-slate-800">Cijferreeks Geheugen</h2>
+                        <p id="game3-desc" class="text-slate-600 text-sm flex-grow">Onthoud een reeks cijfers en roep ze vervolgens terug volgens de spelmodus.</p>
+                        <div class="mt-6">
+                            <a href="./number-sequence-memory-game/index.html" id="game3-btn" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
+                                Speel Spel
+                            </a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Game 4: Color Reaction Game -->
-                <div class="game-card bg-gray-900 text-white border border-gray-700 rounded-2xl shadow-lg flex flex-col overflow-hidden">
-                    <div class="p-6 flex-grow">
-                        <h2 class="text-xl font-bold mb-2">Color Reaction Game</h2>
-                        <p class="text-gray-400 text-sm">Test your reflexes by tapping the screen only when a "correct" color appears.</p>
-                    </div>
-                    <div class="p-6 bg-gray-800">
-                        <a href="./color-reaction-game/index.html" class="block w-full text-center bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-500 transition-colors">
-                            Play Game
-                        </a>
+                <div class="game-card bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
+                    <img class="w-full h-48 object-cover" src="https://placehold.co/600x400/ebcb8b/2e3440?text=Tap+the+Color" alt="Color Reaction Game Cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/ebcb8b/2e3440?text=Image+Not+Found';">
+                    <div class="p-6 flex-grow flex flex-col">
+                        <h2 id="game4-title" class="text-xl font-bold mb-2 text-slate-800">Kleurreactie Spel</h2>
+                        <p id="game4-desc" class="text-slate-600 text-sm flex-grow">Test je reflexen door alleen op het scherm te tikken als een "juiste" kleur verschijnt.</p>
+                        <div class="mt-6">
+                            <a href="./color-reaction-game/index.html" id="game4-btn" class="block w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors">
+                                Speel Spel
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -97,9 +111,94 @@
 
         <!-- Footer -->
         <footer class="text-center mt-10 sm:mt-16">
-            <p class="text-slate-500 text-sm">© 2025 Valentijn Leenaers</p>
+            <p id="footer-text" class="text-slate-500 text-sm">© 2025 Valentijn Leenaers</p>
         </footer>
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const translations = {
+                nl: {
+                    title: "Val's Spelletjes Hub",
+                    subtitle: "Een verzameling cognitieve spellen ontworpen door Valentijn Leenaers. Kies hieronder een spel om te beginnen.",
+                    game1_title: "Cognitief Spelspel",
+                    game1_desc: "Spel woorden door letters en cijfers in de juiste kleurenvolgorde te selecteren.",
+                    game2_title: "Woordsom Spel",
+                    game2_desc: "Bereken de som van de letters in een woord, waarbij A=1, B=2, enzovoort.",
+                    game3_title: "Cijferreeks Geheugen",
+                    game3_desc: "Onthoud een reeks cijfers en roep ze vervolgens terug volgens de spelmodus.",
+                    game4_title: "Kleurreactie Spel",
+                    game4_desc: "Test je reflexen door alleen op het scherm te tikken als een \"juiste\" kleur verschijnt.",
+                    play_btn: "Speel Spel",
+                    page_title: "Val's Spelletjes Hub",
+                },
+                en: {
+                    title: "Val's Game Hub",
+                    subtitle: "A collection of cognitive games designed by Valentijn Leenaers. Choose a game below to start playing.",
+                    game1_title: "Cognitive Spelling Game",
+                    game1_desc: "Spell words by selecting letters and numbers in the correct color sequence.",
+                    game2_title: "Word Sum Game",
+                    game2_desc: "Calculate the sum of the letters in a word, where A=1, B=2, and so on.",
+                    game3_title: "Number Sequence Memory",
+                    game3_desc: "Memorize a sequence of numbers, then recall them according to the game mode.",
+                    game4_title: "Color Reaction Game",
+                    game4_desc: "Test your reflexes by tapping the screen only when a \"correct\" color appears.",
+                    play_btn: "Play Game",
+                    page_title: "Val's Game Hub",
+                }
+            };
 
+            const langNlBtn = document.getElementById('lang-nl');
+            const langEnBtn = document.getElementById('lang-en');
+
+            const setLanguage = (lang) => {
+                const t = translations[lang];
+                
+                // Set page language and title
+                document.documentElement.lang = lang;
+                document.title = t.page_title;
+
+                // Update header
+                document.querySelector('#main-title span').textContent = t.title;
+                document.getElementById('subtitle').textContent = t.subtitle;
+
+                // Update game cards
+                document.getElementById('game1-title').textContent = t.game1_title;
+                document.getElementById('game1-desc').textContent = t.game1_desc;
+                document.getElementById('game1-btn').textContent = t.play_btn;
+
+                document.getElementById('game2-title').textContent = t.game2_title;
+                document.getElementById('game2-desc').textContent = t.game2_desc;
+                document.getElementById('game2-btn').textContent = t.play_btn;
+
+                document.getElementById('game3-title').textContent = t.game3_title;
+                document.getElementById('game3-desc').textContent = t.game3_desc;
+                document.getElementById('game3-btn').textContent = t.play_btn;
+
+                document.getElementById('game4-title').textContent = t.game4_title;
+                document.getElementById('game4-desc').textContent = t.game4_desc;
+                document.getElementById('game4-btn').textContent = t.play_btn;
+
+                // Update active button style
+                if (lang === 'nl') {
+                    langNlBtn.classList.add('active');
+                    langEnBtn.classList.remove('active');
+                } else {
+                    langEnBtn.classList.add('active');
+                    langNlBtn.classList.remove('active');
+                }
+
+                // Save preference
+                localStorage.setItem('gameHubLang', lang);
+            };
+
+            langNlBtn.addEventListener('click', () => setLanguage('nl'));
+            langEnBtn.addEventListener('click', () => setLanguage('en'));
+
+            // Set initial language based on storage or default to Dutch
+            const savedLang = localStorage.getItem('gameHubLang') || 'nl';
+            setLanguage(savedLang);
+        });
+    </script>
 </body>
 </html>
