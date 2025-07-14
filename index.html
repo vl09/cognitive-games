@@ -44,8 +44,8 @@
             <p id="subtitle" class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto"></p>
         </header>
 
-        <main class="w-full max-w-6xl pb-16 px-4 md:px-0">
-            <div id="game-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <main class="w-full max-w-6xl pb-16">
+            <div id="game-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8">
                 </div>
         </main>
         
@@ -163,8 +163,8 @@
                 const cardHTML = `
                     <a href="${game.link}?lang=${lang}" class="game-card group no-underline text-current bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden" aria-label="Play ${trans.title}">
                         <img class="w-full aspect-square object-cover" src="${game.imageUrl}" alt="${trans.imageAlt}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/333333?text=Image+Not+Found';">
-                        <div class="p-6 flex-grow flex flex-col">
-                            <h2 class="text-xl font-bold mb-2 text-slate-800">${trans.title}</h2>
+                        <div class="p-4 sm:p-6 flex-grow flex flex-col">
+                            <h2 class="text-base sm:text-lg font-bold mb-2 text-slate-800">${trans.title}</h2>
                             <p class="text-slate-600 text-sm flex-grow">${trans.description}</p>
                             <div class="mt-6">
                                 <div class="block w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg group-hover:bg-blue-500 transition-colors">
