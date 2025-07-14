@@ -48,6 +48,15 @@
          * - Touch and keyboard controls
          * - Mobile-optimized interface
          */
+        // Function to get language from URL
+        function getLangFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const lang = urlParams.get('lang');
+            if (lang === 'en' || lang === 'nl') {
+                return lang;
+            }
+            return null;
+        }
         
         const { useState, useEffect, useRef } = React;
 
@@ -212,7 +221,7 @@
             const [isMuted, setIsMuted] = useState(() => getCookie('colorGameMuted') || false);
             
             // Load settings from cookies or use defaults
-            const [language, setLanguage] = useState(() => getCookie('colorGameLanguage') || 'nl');
+            const [language, setLanguage] = useState(() => getLangFromURL() || getCookie('colorGameLanguage') || 'nl');
             const [intervalTimeBase, setIntervalTimeBase] = useState(() => getCookie('colorGameIntervalBase') || 2200);
             const [intervalVariation, setIntervalVariation] = useState(() => getCookie('colorGameIntervalVar') || 500);
             const [displayTimeBase, setDisplayTimeBase] = useState(() => getCookie('colorGameDisplayBase') || 2200);
