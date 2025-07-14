@@ -50,6 +50,16 @@
          * - Individual input boxes for multi-digit answers.
          * - Random color mode for visual and audio presentation.
          */
+        
+        // Function to get language from URL
+        function getLangFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const lang = urlParams.get('lang');
+            if (lang === 'en' || lang === 'nl') {
+                return lang;
+            }
+            return null;
+        }
 
         const { useState, useEffect, useRef, useCallback } = React;
         
@@ -249,7 +259,7 @@
             const [activeInputIndex, setActiveInputIndex] = useState(null);
 
             // --- Settings State ---
-            const [language, setLanguage] = useState(() => getCookie('numGameLang') || 'nl');
+            const [language, setLanguage] = useState(() => getLangFromURL() || getCookie('numGameLang') || 'nl');
             const [numDigits, setNumDigits] = useState(() => getCookie('numGameDigits') || 4);
             const [presentationSpeed, setPresentationSpeed] = useState(() => getCookie('numGameSpeed') || 800);
             const [presentationMode, setPresentationMode] = useState(() => getCookie('numGamePresMode') || 'both');
