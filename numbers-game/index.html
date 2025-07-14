@@ -427,15 +427,26 @@
             
             const handleToggleSign = (index) => {
                 const newPlayerInput = [...playerInput];
-                const currentValue = newPlayerInput[index];
+                const currentValue = String(newPlayerInput[index] || '');
 
-                if (currentValue === null || currentValue === '') return;
+                // If the current value is "0", do nothing and exit the function.
+                if (currentValue === '0') {
+                    return;
+                }
 
-                const num = Number(currentValue);
-                if (isNaN(num)) return;
+                // If the value is already negative, remove the minus sign.
+                if (currentValue.startsWith('-')) {
+                    newPlayerInput[index] = currentValue.substring(1);
+                } 
+                // Otherwise (if it's empty or a positive number), add a minus sign.
+                else {
+                    newPlayerInput[index] = '-' + currentValue;
+                }
 
-                newPlayerInput[index] = String(num * -1);
                 setPlayerInput(newPlayerInput);
+
+                // Ensure the input box is focused so the user can continue typing.
+                inputRefs.current[index]?.focus();
             };
             
             const getResponsiveInputStyles = (numDigits, isMobile) => {
@@ -593,17 +604,34 @@
             }, [playerInput, currentSequence, gameMode, transformValue, numDigits, score, roundsPlayed, triesLeft]);
 
             const handleInputChange = (e, index) => {
-                const { value } = e.target;
-                if (/^-?[0-9]*$/.test(value)) {
-                    const newPlayerInput = [...playerInput];
-                    newPlayerInput[index] = value;
-                    setPlayerInput(newPlayerInput);
-                    if (value && transformValue === 0 && index < numDigits - 1) {
-                        inputRefs.current[index + 1].focus();
-                    }
+                let { value } = e.target;
+
+                // First, ensure the typed characters are valid.
+                if (!/^-?[0-9]*$/.test(value)) {
+                    return;
+                }
+
+                // Handle the special cases of an empty input or a single minus sign.
+                // These should not be converted, otherwise they would become "0".
+                if (value === '' || value === '-') {
+                    // Keep the value as is.
+                } else {
+                    // For any other valid number, convert it to a Number and back to a String.
+                    // This elegantly handles both leading zeros ("07" -> "7") 
+                    // and the "-0" case ("-0" -> "0").
+                    value = String(Number(value));
+                }
+
+                const newPlayerInput = [...playerInput];
+                newPlayerInput[index] = value;
+                setPlayerInput(newPlayerInput);
+
+                // Auto-focus the next input box if applicable.
+                if (value && transformValue === 0 && index < numDigits - 1) {
+                    inputRefs.current[index + 1].focus();
                 }
             };
-            
+
             const handleKeyDown = (e, index) => {
                 if (e.key === 'Backspace' && !playerInput[index] && index > 0) {
                     inputRefs.current[index - 1].focus();
