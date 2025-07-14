@@ -105,7 +105,14 @@
             React.createElement('path', { key: 4, d: "M17 4v16" })
         ]);
         const HomeIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }), React.createElement('polyline', { points: "9 22 9 12 15 12 15 22" })]);
-        const GamepadIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { d: "M6 11.002V11a5 5 0 1 1 5 5H6.002Z" }), React.createElement('path', { d: "M17 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" }), React.createElement('path', { d: "M14 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" }), React.createElement('path', { d: "M10 6.001H8V8" }), React.createElement('path', { d: "M6 12H4" })]);
+        const ListOrderedIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [
+            React.createElement('line', { key: 'l1', x1: "10", x2: "21", y1: "6", y2: "6" }),
+            React.createElement('line', { key: 'l2', x1: "10", x2: "21", y1: "12", y2: "12" }),
+            React.createElement('line', { key: 'l3', x1: "10", x2: "21", y1: "18", y2: "18" }),
+            React.createElement('path', { key: 'p1', d: "M4 6h1v4" }),
+            React.createElement('path', { key: 'p2', d: "M4 10h2" }),
+            React.createElement('path', { key: 'p3', d: "M6 18H4c0-1 2-2 2-3s-1-1.5-2-2" })
+        ]);
 
 
         // --- Word Lists ---
@@ -671,7 +678,7 @@
                 ]);
 
                 const helpItems = [
-                    { icons: [React.createElement(GamepadIcon)], title: t.helpGamePlay, description: t.helpGamePlayDesc },
+                    { icons: [React.createElement(ListOrderedIcon)], title: t.helpGamePlay, description: t.helpGamePlayDesc },
                     { icons: [React.createElement('span', {className: 'text-sm font-semibold' }, t.difficultyEasy)], title: t.helpDifficultyLevels, description: t.helpDifficultyLevelsDesc },
                     { icons: [React.createElement(SlidersIcon)], title: t.helpColorRule, description: t.helpColorRuleDesc },
                     { icons: [React.createElement(SigmaIcon)], title: t.helpSumChallenge, description: t.helpSumChallengeDesc },
