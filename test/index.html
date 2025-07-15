@@ -238,7 +238,6 @@
                     }
                     wordToUse = userWordInput.trim().toUpperCase();
                 } else {
-                    // This line will now always use the current difficulty
                     const currentWordList = t.wordList[difficulty] || t.wordList['medium'];
                     wordToUse = currentWordList[Math.floor(Math.random() * currentWordList.length)];
                 }
@@ -254,8 +253,9 @@
                 }, 1500);
 
             // --- CORRECTED DEPENDENCY ARRAY ---
-            }, [isUserWord, userWordInput, t, difficulty, resetGame]);
-
+            // 'resetGame' has been removed as it's not used inside this function.
+            }, [isUserWord, userWordInput, t, difficulty]);
+                           
             const resetGame = useCallback(() => {
                 if (timeoutRef.current) clearTimeout(timeoutRef.current);
                 setScore(0);
