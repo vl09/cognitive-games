@@ -261,6 +261,17 @@
             );
         };
 
+        // --- Utility Functions ---
+        const shuffleArray = (array) => {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        };
+
         // --- Main Game Component ---
         const CognitiveSpellingGame = () => {
             const [isMobileDevice, setIsMobileDevice] = useState(false);
@@ -307,23 +318,16 @@
             const [shouldShufflePerRound, setShouldShufflePerRound] = useState(() => getCookie('cognitiveGameShuffle') ?? true);
             const shuffleRef = useRef(shouldShufflePerRound);
             
-            const isInitialRender = useRef(true); //
+            const isInitialRender = useRef(true);
             
             useEffect(() => {
                 const checkScreenSize = () => {
-                    // Set state based on screen width
                     setIsMobileDevice(window.innerWidth < 1040);
                 };
-                
-                // Initial check
                 checkScreenSize();
-                
-                // Add listener for resize events
                 window.addEventListener('resize', checkScreenSize);
-                
-                // Cleanup listener on component unmount
                 return () => window.removeEventListener('resize', checkScreenSize);
-            }, []); // Empty array ensures this effect runs only on mount and unmount
+            }, []);
 
             useEffect(() => {
                 shuffleRef.current = shouldShufflePerRound;
@@ -340,16 +344,6 @@
                 window.history.pushState({}, '', url);
             };
             
-            const shuffleArray = (array) => {
-                let currentIndex = array.length, randomIndex;
-                while (currentIndex != 0) {
-                    randomIndex = Math.floor(Math.random() * currentIndex);
-                    currentIndex--;
-                    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-                }
-                return array;
-            };
-
             const setupBoard = useCallback(() => {
                 let rawItems = [];
                 let idCounter = 0;
@@ -366,14 +360,13 @@
                 });
 
                 const shuffledItems = shuffleArray(rawItems);
-
                 const styledItems = [];
                 const placedCoreBoxes = []; 
 
-                const itemWidthPercent = 5.5; 
-                const itemHeightPercent = 9.0;
-                const coreBoxWidthPercent = 4.5; 
-                const coreBoxHeightPercent = 7.0; 
+                const itemWidthPercent = 6;
+                const itemHeightPercent = 10;
+                const coreBoxWidthPercent = 5;
+                const coreBoxHeightPercent = 8;
 
                 const checkCollision = (boxA, boxB) => (
                     boxA.x < boxB.x + boxB.width &&
@@ -382,28 +375,12 @@
                     boxA.y + boxA.height > boxB.y
                 );
 
-                const numCols = 18;
-                const numRows = 6;
-                const cellWidth = 100 / numCols;
-                const cellHeight = 100 / numRows;
-                const verticalScale = 0.85;
-                const verticalOffset = (100 - (100 * verticalScale)) / 2;
-
                 shuffledItems.forEach((item, i) => {
                     let isPlaced = false;
-                    let attempts = 0;
                     
-                    const row = Math.floor(i / numCols);
-                    const col = i % numCols;
-                    const baseLeft = col * cellWidth;
-                    const baseTop = (row * cellHeight * verticalScale) + verticalOffset;
-
-                    while (!isPlaced && attempts < 200) { 
-                        let left = baseLeft + (Math.random() * cellWidth);
-                        let top = baseTop + (Math.random() * cellHeight);
-
-                        left = Math.min(left, 100 - itemWidthPercent);
-                        top = Math.min(top, 100 - itemHeightPercent);
+                    while (!isPlaced) {
+                        const left = Math.random() * (100 - itemWidthPercent);
+                        const top = Math.random() * (100 - itemHeightPercent);
 
                         const candidateCoreBox = {
                             x: left + (itemWidthPercent - coreBoxWidthPercent) / 2,
@@ -412,10 +389,11 @@
                             height: coreBoxHeightPercent,
                         };
 
-                        let hasCollision = placedCoreBoxes.some(placedBox => checkCollision(candidateCoreBox, placedBox));
+                        const hasCollision = placedCoreBoxes.some(placedBox => checkCollision(candidateCoreBox, placedBox));
 
                         if (!hasCollision) {
                             placedCoreBoxes.push(candidateCoreBox);
+                            
                             styledItems.push({
                                 ...item,
                                 style: {
@@ -427,10 +405,18 @@
                             });
                             isPlaced = true;
                         }
-                        attempts++;
                     }
                 });
                 
+                // FINAL CHECK: Ensure all 104 items have been placed.
+                // If not, log a warning and recursively call setupBoard to try again.
+                // This creates a self-healing mechanism to guarantee a full board.
+                if (styledItems.length !== 104) {
+                    console.warn(`Board setup failed: Only ${styledItems.length}/104 items were placed. Retrying...`);
+                    setupBoard(); // Retry the setup process.
+                    return; // Stop the current execution.
+                }
+
                 setBoardItems(styledItems);
             }, []);
 
@@ -439,18 +425,14 @@
             }, [setupBoard]);
             
              useEffect(() => {
-                // Don't run this on the very first render of the component.
                 if (isInitialRender.current) {
                     isInitialRender.current = false;
                     return;
                 }
-
-                // When the difficulty changes, reset the score and rounds, then start a new round.
                 setScore(0);
                 setRoundsPlayed(0);
                 startRound();
-
-            }, [difficulty]); // This dependency array ensures the effect ONLY runs when 'difficulty' changes.
+            }, [difficulty]);
 
             const startRound = useCallback(() => {
                 if (shuffleRef.current) {
@@ -599,7 +581,6 @@
             useEffect(() => { setCookie('cognitiveGameSum', askForSum); }, [askForSum]);
             useEffect(() => { setCookie('cognitiveGameShuffle', shouldShufflePerRound); }, [shouldShufflePerRound]);
 
-            // If a mobile device is detected, show the warning and stop rendering the game.
             if (isMobileDevice) {
                 return React.createElement(MobileWarning, { t, language });
             }
@@ -887,7 +868,6 @@
                             className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors bg-yellow-100 text-yellow-600 hover:bg-yellow-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed`
                         }, React.createElement(LightbulbIcon)),
                     ]),
-                    // This is the new help button, now at the end of the bar
                     React.createElement('button', { 
                         onClick: () => setShowHelp(true), 
                         className: 'h-10 px-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors flex-shrink-0' 
