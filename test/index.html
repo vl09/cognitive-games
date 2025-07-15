@@ -226,7 +226,7 @@
                 setResult(null);
                 setPlayerInput('');
                 setIsWordVisible(true);
-                
+
                 setTriesLeft(3); 
 
                 let wordToUse = '';
@@ -238,21 +238,23 @@
                     }
                     wordToUse = userWordInput.trim().toUpperCase();
                 } else {
-                    const currentWordList = t.wordList[difficulty] || t.wordList['medium']; // Default to medium if something is wrong
+                    // This line will now always use the current difficulty
+                    const currentWordList = t.wordList[difficulty] || t.wordList['medium'];
                     wordToUse = currentWordList[Math.floor(Math.random() * currentWordList.length)];
                 }
-                
+
                 setCurrentWord(wordToUse);
                 setCorrectAnswer(calculateWordSum(wordToUse));
                 setGameState('presenting');
-                
+
                 timeoutRef.current = setTimeout(() => {
                     setIsWordVisible(false);
                     setGameState('waiting_for_input');
                     setTimeout(() => inputRef.current?.focus(), 100);
                 }, 1500);
 
-            }, [isUserWord, userWordInput, t]);
+            // --- CORRECTED DEPENDENCY ARRAY ---
+            }, [isUserWord, userWordInput, t, difficulty, resetGame]);
 
             const resetGame = useCallback(() => {
                 if (timeoutRef.current) clearTimeout(timeoutRef.current);
