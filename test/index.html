@@ -262,7 +262,6 @@
         };
 
         // --- Utility Functions ---
-        // Moved shuffleArray outside the component for better performance as it's a pure function.
         const shuffleArray = (array) => {
             let currentIndex = array.length, randomIndex;
             while (currentIndex != 0) {
@@ -345,78 +344,90 @@
                 window.history.pushState({}, '', url);
             };
             
-            // BUG FIX: Replaced the board setup logic with a guaranteed placement algorithm.
-            // The old method could fail to place an item if it couldn't find a non-colliding spot,
-            // causing items to occasionally go missing. This new method ensures all items are always placed.
+            // BUG FIX: Reverted to a collision-based placement algorithm.
+            // The previous grid-based system caused tiles to overlap when rotated.
+            // This new logic ensures the core area of each tile does not overlap, guaranteeing legibility
+            // while still allowing for a random, scattered appearance. It also ensures all items are placed.
             const setupBoard = useCallback(() => {
                 let rawItems = [];
                 let idCounter = 0;
                 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
                 const numbers = Array.from({ length: 26 }, (_, i) => i + 1);
 
-                // Create a base list of letters and numbers
                 const itemsToCreate = [];
                 alphabet.forEach(char => itemsToCreate.push({ type: 'letter', value: char }));
                 numbers.forEach(num => itemsToCreate.push({ type: 'number', value: num }));
 
-                // Duplicate each item for a black and a blue version
                 itemsToCreate.forEach(item => {
                     rawItems.push({ ...item, id: idCounter++, color: 'black' });
                     rawItems.push({ ...item, id: idCounter++, color: 'blue' });
                 });
 
-                // Shuffle the items to be placed
                 const shuffledItems = shuffleArray(rawItems);
                 const styledItems = [];
-                
-                // Define grid dimensions and item size for placement
-                const numCols = 18; // Columns for horizontal distribution
-                const numRows = 7;  // Rows for vertical distribution
-                const totalCells = numCols * numRows;
-                const itemWidthPercent = 5.5; 
-                const itemHeightPercent = 9.0;
-                const cellWidth = 100 / numCols;
-                const cellHeight = 100 / numRows;
+                const placedCoreBoxes = []; 
 
-                // This check is a safeguard, though 18x7=126 cells is enough for 104 items.
-                if (totalCells < shuffledItems.length) {
-                    console.error("Not enough grid cells to place all items.");
-                    return;
-                }
+                // Define percentage-based dimensions for items and their core "no-overlap" zone.
+                // The core box is smaller than the item to allow edges to overlap slightly without hiding text.
+                const itemWidthPercent = 6;
+                const itemHeightPercent = 10;
+                const coreBoxWidthPercent = 5;
+                const coreBoxHeightPercent = 8;
 
-                // Create a list of all possible grid cell indices
-                let gridPositions = Array.from({ length: totalCells }, (_, i) => i);
+                // Helper function to check for collision between two rectangular boxes.
+                const checkCollision = (boxA, boxB) => (
+                    boxA.x < boxB.x + boxB.width &&
+                    boxA.x + boxA.width > boxB.x &&
+                    boxA.y < boxB.y + boxB.height &&
+                    boxA.y + boxA.height > boxB.y
+                );
 
-                // Shuffle the grid positions to make placement random
-                gridPositions = shuffleArray(gridPositions);
+                // Loop through every item that needs to be placed on the board.
+                shuffledItems.forEach((item, i) => {
+                    let isPlaced = false;
+                    
+                    // This loop continues trying to place the current item until it finds a valid spot.
+                    // This prevents items from being skipped and guarantees legibility.
+                    while (!isPlaced) {
+                        // Generate random top/left positions within the board's boundaries.
+                        const left = Math.random() * (100 - itemWidthPercent);
+                        const top = Math.random() * (100 - itemHeightPercent);
 
-                // Assign each item to a unique, shuffled grid position
-                shuffledItems.forEach((item, index) => {
-                    const gridIndex = gridPositions[index];
-                    const row = Math.floor(gridIndex / numCols);
-                    const col = gridIndex % numCols;
+                        // Define the candidate "core" box for the item at the random position.
+                        const candidateCoreBox = {
+                            x: left + (itemWidthPercent - coreBoxWidthPercent) / 2,
+                            y: top + (itemHeightPercent - coreBoxHeightPercent) / 2,
+                            width: coreBoxWidthPercent,
+                            height: coreBoxHeightPercent,
+                        };
 
-                    // Add random jitter within the cell for a more natural, less grid-like look
-                    const jitterX = (Math.random() - 0.5) * cellWidth * 0.6;
-                    const jitterY = (Math.random() - 0.5) * cellHeight * 0.6;
+                        // Check if this candidate box collides with any of the already placed core boxes.
+                        const hasCollision = placedCoreBoxes.some(placedBox => checkCollision(candidateCoreBox, placedBox));
 
-                    const left = col * cellWidth + jitterX;
-                    const top = row * cellHeight + jitterY;
-
-                    styledItems.push({
-                        ...item,
-                        style: {
-                            // Clamp the position to ensure items don't go off-screen
-                            top: `${Math.max(0, Math.min(top, 100 - itemHeightPercent))}%`,
-                            left: `${Math.max(0, Math.min(left, 100 - itemWidthPercent))}%`,
-                            transform: `rotate(${(Math.random() * 16) - 8}deg)`,
-                            zIndex: index, // Use index for a consistent layering
-                        },
-                    });
+                        // If there is no collision, the position is valid.
+                        if (!hasCollision) {
+                            // Add the new core box to our list of placed boxes.
+                            placedCoreBoxes.push(candidateCoreBox);
+                            
+                            // Add the fully styled item to our list for rendering.
+                            styledItems.push({
+                                ...item,
+                                style: {
+                                    top: `${top}%`,
+                                    left: `${left}%`,
+                                    transform: `rotate(${(Math.random() * 16) - 8}deg)`,
+                                    zIndex: i,
+                                },
+                            });
+                            // Mark the item as placed to exit the while loop.
+                            isPlaced = true;
+                        }
+                        // If there was a collision, the while loop repeats, trying a new random position.
+                    }
                 });
                 
                 setBoardItems(styledItems);
-            }, []); // This function is self-contained and doesn't need dependencies.
+            }, []);
 
             useEffect(() => {
                 setupBoard();
