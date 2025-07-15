@@ -344,10 +344,6 @@
                 window.history.pushState({}, '', url);
             };
             
-            // BUG FIX: Reverted to a collision-based placement algorithm.
-            // The previous grid-based system caused tiles to overlap when rotated.
-            // This new logic ensures the core area of each tile does not overlap, guaranteeing legibility
-            // while still allowing for a random, scattered appearance. It also ensures all items are placed.
             const setupBoard = useCallback(() => {
                 let rawItems = [];
                 let idCounter = 0;
@@ -367,14 +363,11 @@
                 const styledItems = [];
                 const placedCoreBoxes = []; 
 
-                // Define percentage-based dimensions for items and their core "no-overlap" zone.
-                // The core box is smaller than the item to allow edges to overlap slightly without hiding text.
                 const itemWidthPercent = 6;
                 const itemHeightPercent = 10;
                 const coreBoxWidthPercent = 5;
                 const coreBoxHeightPercent = 8;
 
-                // Helper function to check for collision between two rectangular boxes.
                 const checkCollision = (boxA, boxB) => (
                     boxA.x < boxB.x + boxB.width &&
                     boxA.x + boxA.width > boxB.x &&
@@ -382,18 +375,13 @@
                     boxA.y + boxA.height > boxB.y
                 );
 
-                // Loop through every item that needs to be placed on the board.
                 shuffledItems.forEach((item, i) => {
                     let isPlaced = false;
                     
-                    // This loop continues trying to place the current item until it finds a valid spot.
-                    // This prevents items from being skipped and guarantees legibility.
                     while (!isPlaced) {
-                        // Generate random top/left positions within the board's boundaries.
                         const left = Math.random() * (100 - itemWidthPercent);
                         const top = Math.random() * (100 - itemHeightPercent);
 
-                        // Define the candidate "core" box for the item at the random position.
                         const candidateCoreBox = {
                             x: left + (itemWidthPercent - coreBoxWidthPercent) / 2,
                             y: top + (itemHeightPercent - coreBoxHeightPercent) / 2,
@@ -401,15 +389,11 @@
                             height: coreBoxHeightPercent,
                         };
 
-                        // Check if this candidate box collides with any of the already placed core boxes.
                         const hasCollision = placedCoreBoxes.some(placedBox => checkCollision(candidateCoreBox, placedBox));
 
-                        // If there is no collision, the position is valid.
                         if (!hasCollision) {
-                            // Add the new core box to our list of placed boxes.
                             placedCoreBoxes.push(candidateCoreBox);
                             
-                            // Add the fully styled item to our list for rendering.
                             styledItems.push({
                                 ...item,
                                 style: {
@@ -419,13 +403,20 @@
                                     zIndex: i,
                                 },
                             });
-                            // Mark the item as placed to exit the while loop.
                             isPlaced = true;
                         }
-                        // If there was a collision, the while loop repeats, trying a new random position.
                     }
                 });
                 
+                // FINAL CHECK: Ensure all 104 items have been placed.
+                // If not, log a warning and recursively call setupBoard to try again.
+                // This creates a self-healing mechanism to guarantee a full board.
+                if (styledItems.length !== 104) {
+                    console.warn(`Board setup failed: Only ${styledItems.length}/104 items were placed. Retrying...`);
+                    setupBoard(); // Retry the setup process.
+                    return; // Stop the current execution.
+                }
+
                 setBoardItems(styledItems);
             }, []);
 
