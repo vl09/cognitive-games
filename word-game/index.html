@@ -164,6 +164,8 @@
         // --- Main Game Component ---
         const WordSumGame = () => {
             const [language, setLanguage] = useState(() => getLangFromURL() || getCookie('wordSumLang') || 'nl');
+            const [difficulty, setDifficulty] = useState(() => getCookie('wordSumDifficulty') || 'medium');
+            
             const [gameState, setGameState] = useState('idle');
             const [score, setScore] = useState(0);
             const [roundsPlayed, setRoundsPlayed] = useState(0);
@@ -172,7 +174,6 @@
             const [result, setResult] = useState(null);
             const [isUserWord, setIsUserWord] = useState(false);
             const [userWordInput, setUserWordInput] = useState('');
-            const [difficulty, setDifficulty] = useState('medium');
             const [isWordPermanentlyVisible, setIsWordPermanentlyVisible] = useState(false);
             const [correctAnswer, setCorrectAnswer] = useState(0);
             const [isWordVisible, setIsWordVisible] = useState(false);
@@ -187,9 +188,11 @@
             
             const t = translations[language];
 
+            // Effect to save both language and difficulty to cookies
             useEffect(() => {
                 setCookie('wordSumLang', language);
-            }, [language]);
+                setCookie('wordSumDifficulty', difficulty);
+            }, [language, difficulty]);
             
             const handleLanguageChange = (newLang) => {
                 // Set the language state, which will trigger a re-render
@@ -201,6 +204,12 @@
                 window.history.pushState({}, '', url);
             };
 
+            const handleDifficultyChange = () => {
+                // A simple cycle through the difficulties
+                const newDifficulty = difficulty === 'easy' ? 'medium' : difficulty === 'medium' ? 'hard' : 'easy';
+                setDifficulty(newDifficulty);
+                resetGame(); // Reset the game to apply the new difficulty
+            };
 
             const calculateWordSum = (word) => {
                 return word.toUpperCase().split('').reduce((sum, letter) => {
@@ -217,7 +226,7 @@
                 setResult(null);
                 setPlayerInput('');
                 setIsWordVisible(true);
-                
+
                 setTriesLeft(3); 
 
                 let wordToUse = '';
@@ -229,22 +238,24 @@
                     }
                     wordToUse = userWordInput.trim().toUpperCase();
                 } else {
-                    const currentWordList = t.wordList[difficulty] || t.wordList['medium']; // Default to medium if something is wrong
+                    const currentWordList = t.wordList[difficulty] || t.wordList['medium'];
                     wordToUse = currentWordList[Math.floor(Math.random() * currentWordList.length)];
                 }
-                
+
                 setCurrentWord(wordToUse);
                 setCorrectAnswer(calculateWordSum(wordToUse));
                 setGameState('presenting');
-                
+
                 timeoutRef.current = setTimeout(() => {
                     setIsWordVisible(false);
                     setGameState('waiting_for_input');
                     setTimeout(() => inputRef.current?.focus(), 100);
                 }, 1500);
 
-            }, [isUserWord, userWordInput, t]);
-
+            // --- CORRECTED DEPENDENCY ARRAY ---
+            // 'resetGame' has been removed as it's not used inside this function.
+            }, [isUserWord, userWordInput, t, difficulty]);
+                           
             const resetGame = useCallback(() => {
                 if (timeoutRef.current) clearTimeout(timeoutRef.current);
                 setScore(0);
@@ -426,7 +437,7 @@
                     }, isUserWord ? t.yourWord : t.randomWord),
                     // Button 2: Difficulty
                     React.createElement('button', {
-                        onClick: () => handleSettingChange(setDifficulty, d => d === 'easy' ? 'medium' : d === 'medium' ? 'hard' : 'easy'),
+                        onClick: handleDifficultyChange, // Use the new dedicated handler
                         className: `h-10 px-4 rounded-lg font-semibold transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200`
                     }, t[`difficulty${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`]),
                     // Button 3: Show Word (NOW AN ICON BUTTON)
