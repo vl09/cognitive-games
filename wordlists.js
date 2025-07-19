@@ -82,7 +82,7 @@ const wordLists = {
       "FEE", "FEEST", "FIETS", "FLES", "FOTO", "GEEL", "GEIT", "GOUD", "GROEN", "HALLO",
       "HART", "HEEL", "HEMD", "HERFST", "HOED", "HOND", "IDEE", "IJS", "JAAR", "JAS",
       "KAARS", "KAAS", "KAST", "KAT", "KEEL", "KIND", "KOE", "KOEK", "KOP", "KOUD",
-      "LAARS", "LAND", "LEPEL", "LEVEN", "LIED", "LIEF", "LEUW", "LUCHT", "MAAG", "MAAN",
+      "LAARS", "LAND", "LEPEL", "LEVEN", "LIED", "LIEF", "LEEUW", "LUCHT", "MAAG", "MAAN",
       "MEER", "MELK", "MOEDER", "MOOI", "NACHT", "NAJAAR", "NEUS", "NOOT", "OOG", "OOM",
       "OOR", "OPA", "PAD", "PAPA", "PILS", "PLEIN", "POES", "PUNT", "RAAM", "REGEN",
       "RIEM", "ROK", "ROOD", "ROOS", "RUG", "SAP", "SJAAL", "SNOEP", "SOEP", "STAD",
