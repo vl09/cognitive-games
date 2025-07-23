@@ -464,8 +464,8 @@
                             className: 'p-2 sm:p-4',
                             style: {
                                 transform: `rotate(${boardRotation}deg)`,
-                                /* Slowed down the board flip and changed easing */
-                                transition: 'transform 1.2s ease-in-out'
+                                transition: 'transform 1.2s ease-in-out',
+                                transformStyle: 'preserve-3d'
                             }
                         },
                             rows.map((row, rowIndex) => React.createElement('div', {
