@@ -221,7 +221,7 @@
         // --- Card Component ---
         const Card = ({ card, onClick }) => {
             return React.createElement('div', {
-                className: `card-container w-16 h-[85px] sm:w-20 sm:h-[110px] lg:w-24 lg:h-[130px] cursor-pointer ${card.isMatched ? 'matched' : ''}`,
+                className: `card-container w-14 h-[78px] sm:w-20 sm:h-[110px] lg:w-24 lg:h-[130px] cursor-pointer ${card.isMatched ? 'matched' : ''}`,
                 onClick: () => onClick(card)
             },
                 React.createElement('div', { className: `card-inner ${card.isFlipped ? 'flipped' : ''}` }, [
@@ -467,7 +467,7 @@
                         } else if (windowWidth > 480) {
                             rowLengths = [6, 5, 6, 5, 6, 6];
                         } else {
-                            rowLengths = [5, 4, 5, 4, 5, 4, 5, 2];
+                            rowLengths = [6, 6, 6, 6, 5, 5];
                         }
                         
                         const rows = [];
@@ -545,7 +545,7 @@
                 );
             };
         
-            return React.createElement('div', { className: "min-h-screen bg-gray-100 text-gray-800 flex flex-col" }, [
+            return React.createElement('div', { className: "h-screen bg-gray-100 text-gray-800 flex flex-col overflow-hidden" }, [
                 React.createElement('div', { key: 'header', className: "p-4 bg-white flex justify-between items-center border-b border-gray-200 shadow-sm sticky top-0 z-10" }, [
                      React.createElement('a', { href: `../index.html?lang=${language}`, className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(HomeIcon)),
                     React.createElement('div', { key: 'scores', className: "flex gap-4 sm:gap-6 items-center text-base sm:text-lg" }, [
