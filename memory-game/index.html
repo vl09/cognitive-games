@@ -221,7 +221,7 @@
         // --- Card Component ---
         const Card = ({ card, onClick }) => {
             return React.createElement('div', {
-                className: `card-container w-14 h-[78px] sm:w-20 sm:h-[110px] lg:w-24 lg:h-[130px] cursor-pointer ${card.isMatched ? 'matched' : ''}`,
+                className: `card-container w-14 h-[74px] sm:w-20 sm:h-[110px] lg:w-24 lg:h-[130px] cursor-pointer ${card.isMatched ? 'matched' : ''}`,
                 onClick: () => onClick(card)
             },
                 React.createElement('div', { className: `card-inner ${card.isFlipped ? 'flipped' : ''}` }, [
