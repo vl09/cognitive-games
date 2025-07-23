@@ -20,10 +20,10 @@
             position: relative;
             width: 100%;
             height: 100%;
-            /* Slowed down the card flip animation */
             transition: transform 0.8s;
             transform-style: preserve-3d;
-            /* Moved shadow and added radius here to fix clipping issue */
+            /* Explicitly set the initial state for the transform property */
+            transform: rotateY(0deg);
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             border-radius: 0.5rem;
         }
@@ -68,10 +68,18 @@
         .win-animation {
             animation: win-pop 0.5s ease-out forwards;
         }
+        .shake-animation {
+            animation: shake 0.5s;
+        }
         @keyframes win-pop {
             0% { transform: scale(0.5); opacity: 0; }
             80% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
     </style>
 </head>
@@ -120,12 +128,28 @@
         const SettingsIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), React.createElement('circle', { key: 2, cx: "12", cy: "12", r: "3" })]);
         const XIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M18 6L6 18" }), React.createElement('path', { key: 2, d: "M6 6l12 12" })]);
         const HomeIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }), React.createElement('polyline', { points: "9 22 9 12 15 12 15 22" })]);
-        const SwitchVerticalIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [
-            React.createElement('path', { key: 1, d: "m3 16 4 4 4-4" }),
-            React.createElement('path', { key: 2, d: "M7 20V4" }),
-            React.createElement('path', { key: 3, d: "m21 8-4-4-4 4" }),
-            React.createElement('path', { key: 4, d: "M17 4v16" })
+        const FlipBoardIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [
+            React.createElement('polyline', { key: 1, points: "23 4 23 10 17 10" }),
+            React.createElement('polyline', { key: 2, points: "1 20 1 14 7 14" }),
+            React.createElement('path', { key: 3, d: "M3.51 9a9 9 0 0 1 14.85-3.36L23 10" }),
+            React.createElement('path', { key: 4, d: "M20.49 15a9 9 0 0 1-14.85 3.36L1 14" })
         ]);
+        const MathIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [
+            React.createElement('rect', { key: 'border', x: 3, y: 3, width: 18, height: 18, rx: 2 }),
+            // Plus
+            React.createElement('line', { key: 'plus-v', x1: 8, y1: 6, x2: 8, y2: 10 }),
+            React.createElement('line', { key: 'plus-h', x1: 6, y1: 8, x2: 10, y2: 8 }),
+            // Minus
+            React.createElement('line', { key: 'minus', x1: 6, y1: 16, x2: 10, y2: 16 }),
+            // Multiply
+            React.createElement('line', { key: 'mul1', x1: 14, y1: 6, x2: 18, y2: 10 }),
+            React.createElement('line', { key: 'mul2', x1: 18, y1: 6, x2: 14, y2: 10 }),
+            // Divide
+            React.createElement('line', { key: 'div', x1: 14, y1: 16, x2: 18, y2: 16 }),
+            React.createElement('circle', { key: 'div-dot1', cx: 16, cy: 14, r: 0.5, fill: 'currentColor' }),
+            React.createElement('circle', { key: 'div-dot2', cx: 16, cy: 18, r: 0.5, fill: 'currentColor' })
+        ]);
+
         
         // --- Internationalization ---
         const translations = {
@@ -141,7 +165,12 @@
                 gameWonText: (moves) => `You found all pairs in ${moves} moves.`,
                 playAgain: "Play Again",
                 goBack: "Go to Homepage",
-                flipOnMatch: "Toggle Board Flip on Match"
+                flipOnMatch: "Toggle Board Flip on Match",
+                multiplyChallenge: "Toggle Multiply Challenge",
+                whatIsTheProduct: (val1, val2) => `What is ${val1} × ${val2}?`,
+                checkAnswer: "Check",
+                correctAnswer: "Correct Answer",
+                triesLeft: (count) => `${count} ${count === 1 ? 'try' : 'tries'} left`
             },
             nl: {
                 title: "Memory Spel",
@@ -155,7 +184,12 @@
                 gameWonText: (moves) => `Je hebt alle paren gevonden in ${moves} zetten.`,
                 playAgain: "Opnieuw Spelen",
                 goBack: "Ga naar de Homepage",
-                flipOnMatch: "Wissel Bord na Match"
+                flipOnMatch: "Wissel Bord na Match",
+                multiplyChallenge: "Wissel Vermenigvuldig-uitdaging",
+                whatIsTheProduct: (val1, val2) => `Wat is ${val1} × ${val2}?`,
+                checkAnswer: "Controleer",
+                correctAnswer: "Juiste Antwoord",
+                triesLeft: (count) => `${count} ${count === 1 ? 'poging' : 'pogingen'} over`
             }
         };
 
@@ -169,10 +203,20 @@
             }
             return array;
         };
+        
+        const getCardValue = (card) => {
+            const rank = card.rank;
+            if (!isNaN(rank)) return parseInt(rank, 10);
+            if (rank === 'A') return 1;
+            if (rank === 'J') return 11;
+            if (rank === 'Q') return 12;
+            if (rank === 'K') return 13;
+            return 0;
+        };
 
         // --- Main Game Component ---
         const MemoryGame = () => {
-            const [gameState, setGameState] = useState('idle'); // 'idle', 'playing', 'finished'
+            const [gameState, setGameState] = useState('idle'); // 'idle', 'playing', 'finished', 'askingForProduct'
             const [cards, setCards] = useState([]);
             const [flippedCards, setFlippedCards] = useState([]);
             const [moves, setMoves] = useState(0);
@@ -180,9 +224,16 @@
             const [showSettings, setShowSettings] = useState(false);
             const [isChecking, setIsChecking] = useState(false);
             
+            // Challenge State
+            const [productTriesLeft, setProductTriesLeft] = useState(3);
+            const [productAnswer, setProductAnswer] = useState('');
+            const [isProductInputIncorrect, setIsProductInputIncorrect] = useState(false);
+            const [showCorrectProduct, setShowCorrectProduct] = useState(false);
+            
             // Settings State (with cookie loading)
             const [language, setLanguage] = useState(() => getCookie('memoryGameLang') || 'nl');
-            const [isFlipModeEnabled, setIsFlipModeEnabled] = useState(() => getCookie('memoryGameFlipMode') ?? false);
+            const [isFlipModeEnabled, setIsFlipModeEnabled] = useState(() => getCookie('memoryGameFlipMode') ?? true);
+            const [isMultiplyModeEnabled, setIsMultiplyModeEnabled] = useState(() => getCookie('memoryGameMultiplyMode') ?? false);
             const [boardRotation, setBoardRotation] = useState(0);
             
             const t = translations[language];
@@ -249,7 +300,7 @@
             }, [resetGame]);
 
             const handleCardClick = (clickedCard) => {
-                if (isChecking || clickedCard.isFlipped || flippedCards.length >= 2) {
+                if (isChecking || gameState !== 'playing' || clickedCard.isFlipped || flippedCards.length >= 2) {
                     return;
                 }
 
@@ -260,37 +311,73 @@
                 setFlippedCards(prev => [...prev, clickedCard]);
             };
 
+            const proceedWithMatchCheck = useCallback(() => {
+                const [firstCard, secondCard] = flippedCards;
+                if (firstCard.matchKey === secondCard.matchKey) {
+                    // It's a match
+                    setTimeout(() => {
+                        setCards(currentCards => currentCards.map(card => 
+                            card.matchKey === firstCard.matchKey ? { ...card, isMatched: true, isFlipped: true } : card
+                        ));
+                        setPairsFound(p => p + 1);
+                        setFlippedCards([]);
+                        setIsChecking(false);
+                        if (isFlipModeEnabled) {
+                            setBoardRotation(r => r + 180);
+                        }
+                    }, 600);
+                } else {
+                    // Not a match
+                    setTimeout(() => {
+                        setCards(currentCards => currentCards.map(card => 
+                            (card.id === firstCard.id || card.id === secondCard.id) ? { ...card, isFlipped: false } : card
+                        ));
+                        setFlippedCards([]);
+                        setIsChecking(false);
+                    }, 1200);
+                }
+            }, [flippedCards, isFlipModeEnabled]);
+
             useEffect(() => {
                 if (flippedCards.length === 2) {
                     setIsChecking(true);
                     setMoves(m => m + 1);
-                    const [firstCard, secondCard] = flippedCards;
-
-                    if (firstCard.matchKey === secondCard.matchKey) {
-                        // It's a match
-                        setTimeout(() => {
-                            setCards(currentCards => currentCards.map(card => 
-                                card.matchKey === firstCard.matchKey ? { ...card, isMatched: true, isFlipped: true } : card
-                            ));
-                            setPairsFound(p => p + 1);
-                            setFlippedCards([]);
-                            setIsChecking(false);
-                            if (isFlipModeEnabled) {
-                                setBoardRotation(r => r + 180);
-                            }
-                        }, 600);
+                    if (isMultiplyModeEnabled) {
+                        setGameState('askingForProduct');
+                        setProductTriesLeft(3);
+                        setProductAnswer('');
+                        setShowCorrectProduct(false);
                     } else {
-                        // Not a match
-                        setTimeout(() => {
-                            setCards(currentCards => currentCards.map(card => 
-                                (card.id === firstCard.id || card.id === secondCard.id) ? { ...card, isFlipped: false } : card
-                            ));
-                            setFlippedCards([]);
-                            setIsChecking(false);
-                        }, 1200);
+                        proceedWithMatchCheck();
                     }
                 }
-            }, [flippedCards, isFlipModeEnabled]);
+            }, [flippedCards, isMultiplyModeEnabled, proceedWithMatchCheck]);
+            
+            const handleProductCheck = () => {
+                const [firstCard, secondCard] = flippedCards;
+                const val1 = getCardValue(firstCard);
+                const val2 = getCardValue(secondCard);
+                const correctProduct = val1 * val2;
+
+                if (parseInt(productAnswer, 10) === correctProduct) {
+                    setGameState('playing');
+                    proceedWithMatchCheck();
+                } else {
+                    const newTries = productTriesLeft - 1;
+                    setProductTriesLeft(newTries);
+                    setProductAnswer('');
+                    setIsProductInputIncorrect(true);
+                    setTimeout(() => setIsProductInputIncorrect(false), 500);
+
+                    if (newTries <= 0) {
+                        setShowCorrectProduct(true);
+                        setTimeout(() => {
+                            setGameState('playing');
+                            proceedWithMatchCheck();
+                        }, 2000);
+                    }
+                }
+            };
             
             useEffect(() => {
                 if (pairsFound > 0 && pairsFound === totalPairs) {
@@ -304,6 +391,7 @@
             // Save settings to cookie whenever they change
             useEffect(() => { setCookie('memoryGameLang', language); }, [language]);
             useEffect(() => { setCookie('memoryGameFlipMode', isFlipModeEnabled); }, [isFlipModeEnabled]);
+            useEffect(() => { setCookie('memoryGameMultiplyMode', isMultiplyModeEnabled); }, [isMultiplyModeEnabled]);
 
             const Card = ({ card, onClick }) => {
                 const cardColorClass = (card.suit === '♥' || card.suit === '♦') ? 'text-red-500' : 'text-black';
@@ -350,6 +438,7 @@
                         ]);
                     
                     case 'playing':
+                    case 'askingForProduct':
                         let rowLengths;
                         if (windowWidth > 1280) {
                             rowLengths = [9, 8, 9, 8];
@@ -396,6 +485,39 @@
                         ]);
                 }
             };
+            
+            const MultiplyModal = () => {
+                if (gameState !== 'askingForProduct') return null;
+                const [firstCard, secondCard] = flippedCards;
+                const val1 = getCardValue(firstCard);
+                const val2 = getCardValue(secondCard);
+                const correctProduct = val1 * val2;
+
+                return React.createElement('div', { className: 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4' },
+                    React.createElement('div', { className: `bg-white rounded-lg shadow-xl p-6 w-full max-w-sm text-center ${isProductInputIncorrect ? 'shake-animation' : ''}` }, [
+                        React.createElement('h3', { key: 'q', className: 'text-xl font-semibold mb-4' }, t.whatIsTheProduct(firstCard.rank, secondCard.rank)),
+                        React.createElement('input', {
+                            key: 'input',
+                            type: 'number',
+                            value: productAnswer,
+                            onChange: e => setProductAnswer(e.target.value),
+                            onKeyDown: e => e.key === 'Enter' && handleProductCheck(),
+                            className: 'w-full text-center text-2xl p-2 border-2 border-gray-300 rounded-md mb-4 focus:border-blue-500 outline-none',
+                            autoFocus: true
+                        }),
+                        !showCorrectProduct && React.createElement('button', {
+                            key: 'check',
+                            onClick: handleProductCheck,
+                            className: 'w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-500 transition-colors'
+                        }, t.checkAnswer),
+                        React.createElement('div', { key: 'feedback', className: 'h-10 mt-2 text-red-500 font-semibold' },
+                            showCorrectProduct 
+                                ? `${t.correctAnswer}: ${correctProduct}`
+                                : (productTriesLeft < 3 ? t.triesLeft(productTriesLeft) : '')
+                        )
+                    ])
+                );
+            };
         
             return React.createElement('div', { className: "min-h-screen bg-gray-100 text-gray-800 flex flex-col" }, [
                 React.createElement('div', { key: 'header', className: "p-4 bg-white flex justify-between items-center border-b border-gray-200 shadow-sm sticky top-0 z-10" }, [
@@ -416,11 +538,19 @@
                         onClick: () => setIsFlipModeEnabled(p => !p),
                         className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${isFlipModeEnabled ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
                         title: t.flipOnMatch
-                    }, React.createElement(SwitchVerticalIcon))
+                    }, React.createElement(FlipBoardIcon)),
+                    React.createElement('button', {
+                        key: 'multiply-mode',
+                        onClick: () => setIsMultiplyModeEnabled(p => !p),
+                        className: `h-10 w-10 flex items-center justify-center rounded-lg font-bold transition-colors ${isMultiplyModeEnabled ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
+                        title: t.multiplyChallenge
+                    }, React.createElement(MathIcon))
                 ]),
 
                 React.createElement('main', { key: 'game-area', className: 'flex-1 flex justify-center items-center' }, renderGameArea()),
                 
+                React.createElement(MultiplyModal),
+
                 showSettings && React.createElement('div', { className: "fixed inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center p-4", onClick: () => setShowSettings(false) }, 
                     React.createElement('div', { className: 'bg-white rounded-xl shadow-2xl w-full max-w-sm m-4 p-6 space-y-6 z-50', onClick: e => e.stopPropagation() }, [
                         React.createElement('div', { key: 'stitle', className: 'flex justify-between items-center' }, [
