@@ -15,6 +15,8 @@
         
         .card-container {
             perspective: 1000px;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d; /* Add for Safari compatibility */
         }
         .card-inner {
             position: relative;
@@ -23,11 +25,11 @@
             transition: transform 0.8s;
             transform-style: preserve-3d;
             -webkit-transform-style: preserve-3d; /* Safari fix */
-            transform: rotateY(0deg);
+            /* transform: rotateY(0deg); */ /* <--- REMOVE THIS LINE */
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             border-radius: 0.5rem;
         }
-        .card-container.flipped .card-inner {
+        .card-inner.flipped {
             transform: rotateY(180deg);
         }
         .card-face {
@@ -215,6 +217,44 @@
             if (rank === 'K') return 13;
             return 0;
         };
+        
+        // --- Card Component (Moved Outside) ---
+        const Card = ({ card, onClick }) => {
+            const cardColorClass = (card.suit === '♥' || card.suit === '♦') ? 'text-red-500' : 'text-black';
+
+            // IMPORTANT: Use the class pattern from the previous fix
+            return React.createElement('div', {
+                className: `card-container w-16 h-24 sm:w-20 sm:h-28 lg:w-24 lg:h-36 cursor-pointer ${card.isMatched ? 'matched' : ''}`,
+                onClick: () => onClick(card)
+            },
+                React.createElement('div', { className: `card-inner ${card.isFlipped ? 'flipped' : ''}` }, [
+                    React.createElement('div', { key: 'back', className: 'card-face card-back' }),
+                    React.createElement('div', {
+                        key: 'front',
+                        className: `card-face card-front bg-white border-2 border-gray-300 ${cardColorClass} relative`
+                    }, [
+                        // Top-left symbol
+                        React.createElement('div', {
+                            key: 'top-left',
+                            className: 'absolute top-1 left-2 flex flex-col items-center font-bold leading-none'
+                        }, [
+                            React.createElement('span', { key: 'rank', className: 'text-lg sm:text-xl' }, card.rank),
+                            React.createElement('span', { key: 'suit', className: 'text-md sm:text-lg' }, card.suit)
+                        ]),
+                        // Bottom-right symbol (rotated)
+                        React.createElement('div', {
+                            key: 'bottom-right',
+                            className: 'absolute bottom-1 right-2 flex flex-col items-center font-bold leading-none',
+                            style: { transform: 'rotate(180deg)' }
+                        }, [
+                            React.createElement('span', { key: 'rank', className: 'text-lg sm:text-xl' }, card.rank),
+                            React.createElement('span', { key: 'suit', className: 'text-md sm:text-lg' }, card.suit)
+                        ])
+                    ])
+                ])
+            );
+        };
+
 
         // --- Main Game Component ---
         const MemoryGame = () => {
@@ -305,12 +345,13 @@
                 if (isChecking || gameState !== 'playing' || clickedCard.isFlipped || flippedCards.length >= 2) {
                     return;
                 }
-
-                const newCards = cards.map(card => 
-                    card.id === clickedCard.id ? { ...card, isFlipped: true } : card
-                );
-                setCards(newCards);
-                setFlippedCards(prev => [...prev, clickedCard]);
+                setTimeout(() => {
+                    const newCards = cards.map(card =>
+                        card.id === clickedCard.id ? { ...card, isFlipped: true } : card
+                    );
+                    setCards(newCards);
+                    setFlippedCards(prev => [...prev, clickedCard]);
+                }, 10); 
             };
 
             const proceedWithMatchCheck = useCallback(() => {
@@ -399,41 +440,6 @@
             useEffect(() => { setCookie('memoryGameLang', language); }, [language]);
             useEffect(() => { setCookie('memoryGameFlipMode', isFlipModeEnabled); }, [isFlipModeEnabled]);
             useEffect(() => { setCookie('memoryGameMultiplyMode', isMultiplyModeEnabled); }, [isMultiplyModeEnabled]);
-
-            const Card = ({ card, onClick }) => {
-                const cardColorClass = (card.suit === '♥' || card.suit === '♦') ? 'text-red-500' : 'text-black';
-                
-                return React.createElement('div', { 
-                    className: `card-container w-16 h-24 sm:w-20 sm:h-28 lg:w-24 lg:h-36 cursor-pointer ${card.isFlipped ? 'flipped' : ''} ${card.isMatched ? 'matched' : ''}`,
-                    onClick: () => onClick(card)
-                },
-                    React.createElement('div', { className: 'card-inner' }, [
-                        React.createElement('div', { key: 'back', className: 'card-face card-back' }),
-                        React.createElement('div', { 
-                            key: 'front', 
-                            className: `card-face card-front bg-white border-2 border-gray-300 ${cardColorClass} relative` 
-                        }, [
-                            // Top-left symbol
-                            React.createElement('div', { 
-                                key: 'top-left', 
-                                className: 'absolute top-1 left-2 flex flex-col items-center font-bold leading-none'
-                            }, [
-                                React.createElement('span', { key: 'rank', className: 'text-lg sm:text-xl' }, card.rank),
-                                React.createElement('span', { key: 'suit', className: 'text-md sm:text-lg' }, card.suit)
-                            ]),
-                            // Bottom-right symbol (rotated)
-                            React.createElement('div', { 
-                                key: 'bottom-right', 
-                                className: 'absolute bottom-1 right-2 flex flex-col items-center font-bold leading-none',
-                                style: { transform: 'rotate(180deg)' }
-                            }, [
-                                React.createElement('span', { key: 'rank', className: 'text-lg sm:text-xl' }, card.rank),
-                                React.createElement('span', { key: 'suit', className: 'text-md sm:text-lg' }, card.suit)
-                            ])
-                        ])
-                    ])
-                );
-            };
 
             const renderGameArea = () => {
                 switch (gameState) {
