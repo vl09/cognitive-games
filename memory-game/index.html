@@ -22,7 +22,7 @@
             height: 100%;
             transition: transform 0.8s;
             transform-style: preserve-3d;
-            /* Explicitly set the initial state for the transform property */
+            -webkit-transform-style: preserve-3d; /* Safari fix */
             transform: rotateY(0deg);
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             border-radius: 0.5rem;
@@ -170,7 +170,8 @@
                 whatIsTheProduct: (val1, val2) => `What is ${val1} × ${val2}?`,
                 checkAnswer: "Check",
                 correctAnswer: "Correct Answer",
-                triesLeft: (count) => `${count} ${count === 1 ? 'try' : 'tries'} left`
+                triesLeft: (count) => `${count} ${count === 1 ? 'try' : 'tries'} left`,
+                skip: "Skip"
             },
             nl: {
                 title: "Memory Spel",
@@ -189,7 +190,8 @@
                 whatIsTheProduct: (val1, val2) => `Wat is ${val1} × ${val2}?`,
                 checkAnswer: "Controleer",
                 correctAnswer: "Juiste Antwoord",
-                triesLeft: (count) => `${count} ${count === 1 ? 'poging' : 'pogingen'} over`
+                triesLeft: (count) => `${count} ${count === 1 ? 'poging' : 'pogingen'} over`,
+                skip: "Overslaan"
             }
         };
 
@@ -379,6 +381,11 @@
                 }
             };
             
+            const handleSkipProduct = () => {
+                setGameState('playing');
+                proceedWithMatchCheck();
+            };
+            
             useEffect(() => {
                 if (pairsFound > 0 && pairsFound === totalPairs) {
                     setTimeout(() => {
@@ -465,7 +472,8 @@
                             style: {
                                 transform: `rotate(${boardRotation}deg)`,
                                 transition: 'transform 1.2s ease-in-out',
-                                transformStyle: 'preserve-3d'
+                                transformStyle: 'preserve-3d',
+                                perspective: '2000px' // Added perspective to the main container
                             }
                         },
                             rows.map((row, rowIndex) => React.createElement('div', {
@@ -502,14 +510,21 @@
                             value: productAnswer,
                             onChange: e => setProductAnswer(e.target.value),
                             onKeyDown: e => e.key === 'Enter' && handleProductCheck(),
-                            className: 'w-full text-center text-2xl p-2 border-2 border-gray-300 rounded-md mb-4 focus:border-blue-500 outline-none',
+                            className: 'w-full text-center text-2xl p-2 border-2 border-gray-300 rounded-md mb-2 focus:border-blue-500 outline-none',
                             autoFocus: true
                         }),
-                        !showCorrectProduct && React.createElement('button', {
-                            key: 'check',
-                            onClick: handleProductCheck,
-                            className: 'w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-500 transition-colors'
-                        }, t.checkAnswer),
+                        !showCorrectProduct && React.createElement('div', { className: 'space-y-2' }, [
+                            React.createElement('button', {
+                                key: 'check',
+                                onClick: handleProductCheck,
+                                className: 'w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-500 transition-colors'
+                            }, t.checkAnswer),
+                            React.createElement('button', {
+                                key: 'skip',
+                                onClick: handleSkipProduct,
+                                className: 'w-full bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-md hover:bg-gray-300 transition-colors'
+                            }, t.skip)
+                        ]),
                         React.createElement('div', { key: 'feedback', className: 'h-10 mt-2 text-red-500 font-semibold' },
                             showCorrectProduct 
                                 ? `${t.correctAnswer}: ${correctProduct}`
