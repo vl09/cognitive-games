@@ -107,8 +107,13 @@
         const RotateCcwIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('polyline', { key: 1, points: "1,4 1,10 7,10" }), React.createElement('path', { key: 2, d: "M3.51 15a9 9 0 1 0 2.13-9.36L1 10" })]);
         const SettingsIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), React.createElement('circle', { key: 2, cx: "12", cy: "12", r: "3" })]);
         const XIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M18 6L6 18" }), React.createElement('path', { key: 2, d: "M6 6l12 12" })]);
-        const CheckIcon = ({ className }) => React.createElement('svg', { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", className }, React.createElement('polyline', { points: "20 6 9 17 4 12" }));
         const HomeIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }), React.createElement('polyline', { points: "9 22 9 12 15 12 15 22" })]);
+        const SwitchVerticalIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [
+            React.createElement('path', { key: 1, d: "m3 16 4 4 4-4" }),
+            React.createElement('path', { key: 2, d: "M7 20V4" }),
+            React.createElement('path', { key: 3, d: "m21 8-4-4-4 4" }),
+            React.createElement('path', { key: 4, d: "M17 4v16" })
+        ]);
         
         // --- Internationalization ---
         const translations = {
@@ -123,7 +128,8 @@
                 gameWonTitle: "Congratulations!",
                 gameWonText: (moves) => `You found all pairs in ${moves} moves.`,
                 playAgain: "Play Again",
-                goBack: "Go to Homepage"
+                goBack: "Go to Homepage",
+                flipOnMatch: "Toggle Board Flip on Match"
             },
             nl: {
                 title: "Memory Spel",
@@ -136,7 +142,8 @@
                 gameWonTitle: "Gefeliciteerd!",
                 gameWonText: (moves) => `Je hebt alle paren gevonden in ${moves} zetten.`,
                 playAgain: "Opnieuw Spelen",
-                goBack: "Ga naar de Homepage"
+                goBack: "Ga naar de Homepage",
+                flipOnMatch: "Wissel Bord na Match"
             }
         };
 
@@ -160,16 +167,17 @@
             const [pairsFound, setPairsFound] = useState(0);
             const [showSettings, setShowSettings] = useState(false);
             const [isChecking, setIsChecking] = useState(false);
-
+            
             // Settings State (with cookie loading)
             const [language, setLanguage] = useState(() => getCookie('memoryGameLang') || 'nl');
+            const [isFlipModeEnabled, setIsFlipModeEnabled] = useState(() => getCookie('memoryGameFlipMode') ?? false);
+            const [boardRotation, setBoardRotation] = useState(0);
             
             const t = translations[language];
             const totalPairs = 17; // (9 ranks * 1 pair) + (4 ranks * 2 pairs)
 
             const handleLanguageChange = (newLang) => {
                 setLanguage(newLang);
-                // The original game updated the URL, which we can keep.
                 const url = new URL(window.location);
                 url.searchParams.set('lang', newLang);
                 window.history.pushState({}, '', url);
@@ -218,6 +226,7 @@
                 setPairsFound(0);
                 setFlippedCards([]);
                 setIsChecking(false);
+                setBoardRotation(0); // Reset board rotation
                 setupBoard();
             }, [setupBoard]);
             
@@ -253,6 +262,9 @@
                             setPairsFound(p => p + 1);
                             setFlippedCards([]);
                             setIsChecking(false);
+                            if (isFlipModeEnabled) {
+                                setBoardRotation(r => r + 180);
+                            }
                         }, 600);
                     } else {
                         // Not a match
@@ -265,7 +277,7 @@
                         }, 1200);
                     }
                 }
-            }, [flippedCards]);
+            }, [flippedCards, isFlipModeEnabled]);
             
             useEffect(() => {
                 if (pairsFound > 0 && pairsFound === totalPairs) {
@@ -278,6 +290,7 @@
 
             // Save settings to cookie whenever they change
             useEffect(() => { setCookie('memoryGameLang', language); }, [language]);
+            useEffect(() => { setCookie('memoryGameFlipMode', isFlipModeEnabled); }, [isFlipModeEnabled]);
 
             const Card = ({ card, onClick }) => {
                 const cardColorClass = (card.suit === '♥' || card.suit === '♦') ? 'text-red-500' : 'text-black';
@@ -305,8 +318,27 @@
                         ]);
                     
                     case 'playing':
-                        return React.createElement('div', { className: 'grid grid-cols-5 sm:grid-cols-7 md:grid-cols-9 gap-2 sm:gap-4 p-4' },
-                            cards.map(card => React.createElement(Card, { key: card.id, card, onClick: handleCardClick }))
+                        const rowLengths = [9, 8, 9, 8];
+                        const rows = [];
+                        let cardIndex = 0;
+                        for (const length of rowLengths) {
+                            rows.push(cards.slice(cardIndex, cardIndex + length));
+                            cardIndex += length;
+                        }
+
+                        return React.createElement('div', { 
+                            className: 'p-4',
+                            style: {
+                                transform: `rotate(${boardRotation}deg)`,
+                                transition: 'transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55)'
+                            }
+                        },
+                            rows.map((row, rowIndex) => React.createElement('div', {
+                                key: rowIndex,
+                                className: 'flex justify-center gap-2 sm:gap-4 mb-2 sm:mb-4'
+                            },
+                                row.map(card => React.createElement(Card, { key: card.id, card, onClick: handleCardClick }))
+                            ))
                         );
 
                     case 'idle':
@@ -332,6 +364,15 @@
                     ])
                 ]),
                 
+                React.createElement('div', { key: 'quick-controls', className: 'p-2 bg-white border-b border-gray-200 flex items-center justify-center gap-2 text-sm' }, [
+                    React.createElement('button', {
+                        key: 'flip-mode',
+                        onClick: () => setIsFlipModeEnabled(p => !p),
+                        className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${isFlipModeEnabled ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
+                        title: t.flipOnMatch
+                    }, React.createElement(SwitchVerticalIcon))
+                ]),
+
                 React.createElement('main', { key: 'game-area', className: 'flex-1 flex justify-center items-center' }, renderGameArea()),
                 
                 showSettings && React.createElement('div', { className: "fixed inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center p-4", onClick: () => setShowSettings(false) }, 
