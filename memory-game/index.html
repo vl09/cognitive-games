@@ -83,6 +83,14 @@
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
+        @media (max-width: 639px) {
+            .card-container {
+                /* Set height based on screen height. 11vh is a good starting point. */
+                height: 11vh; 
+                /* Automatically set width based on a 5:7 playing card ratio */
+                aspect-ratio: 25 / 34; 
+            }
+        }
     </style>
 </head>
 <body>
@@ -221,7 +229,7 @@
         // --- Card Component ---
         const Card = ({ card, onClick }) => {
             return React.createElement('div', {
-                className: `card-container w-14 h-[74px] sm:w-20 sm:h-[110px] lg:w-24 lg:h-[130px] cursor-pointer ${card.isMatched ? 'matched' : ''}`,
+                className: `card-container sm:w-20 sm:h-[110px] lg:w-24 lg:h-[130px] cursor-pointer ${card.isMatched ? 'matched' : ''}`,
                 onClick: () => onClick(card)
             },
                 React.createElement('div', { className: `card-inner ${card.isFlipped ? 'flipped' : ''}` }, [
