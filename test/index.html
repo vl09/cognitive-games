@@ -171,12 +171,18 @@
                 let newCards = [];
                 let idCounter = 0;
 
-                // Create pairs for ranks 2-10 (match by rank only)
+                // Create pairs for ranks 2-10 (match by rank only, with unique suits)
+                const allSuits = ['♥', '♦', '♠', '♣'];
                 ranks.forEach(rank => {
-                    const cardSuit = Math.random() < 0.5 ? suits.red[0] : suits.black[0]; // Assign a random suit for visual
+                    const shuffledSuits = shuffleArray([...allSuits]);
+                    const suit1 = shuffledSuits[0];
+                    const suit2 = shuffledSuits[1];
                     const matchKey = rank;
-                    newCards.push({ id: idCounter++, rank, suit: cardSuit, isFlipped: false, isMatched: false, matchKey });
-                    newCards.push({ id: idCounter++, rank, suit: cardSuit, isFlipped: false, isMatched: false, matchKey });
+                    const color1 = (suit1 === '♥' || suit1 === '♦') ? 'red' : 'black';
+                    const color2 = (suit2 === '♥' || suit2 === '♦') ? 'red' : 'black';
+
+                    newCards.push({ id: idCounter++, rank, suit: suit1, color: color1, isFlipped: false, isMatched: false, matchKey });
+                    newCards.push({ id: idCounter++, rank, suit: suit2, color: color2, isFlipped: false, isMatched: false, matchKey });
                 });
 
                 // Create 4 of each face card (match by rank and color)
