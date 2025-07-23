@@ -16,7 +16,7 @@
         .card-container {
             perspective: 1000px;
             transform-style: preserve-3d;
-            -webkit-transform-style: preserve-3d; /* Add for Safari compatibility */
+            -webkit-transform-style: preserve-3d; /* Safari compatibility */
         }
         .card-inner {
             position: relative;
@@ -25,7 +25,6 @@
             transition: transform 0.8s;
             transform-style: preserve-3d;
             -webkit-transform-style: preserve-3d; /* Safari fix */
-            /* transform: rotateY(0deg); */ /* <--- REMOVE THIS LINE */
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             border-radius: 0.5rem;
         }
@@ -222,7 +221,6 @@
         const Card = ({ card, onClick }) => {
             const cardColorClass = (card.suit === '♥' || card.suit === '♦') ? 'text-red-500' : 'text-black';
 
-            // IMPORTANT: Use the class pattern from the previous fix
             return React.createElement('div', {
                 className: `card-container w-16 h-24 sm:w-20 sm:h-28 lg:w-24 lg:h-36 cursor-pointer ${card.isMatched ? 'matched' : ''}`,
                 onClick: () => onClick(card)
@@ -462,7 +460,607 @@
                         } else if (windowWidth > 480) {
                             rowLengths = [6, 5, 6, 5, 6, 6];
                         } else {
-                            rowLengths = [5, 4, 5, 4, 5, 4, 7];
+                            rowLengths = [5, 4, 5, 4, 5, 4, 5, 2];
+                        }
+                        
+                        const rows = [];
+                        let cardIndex = 0;
+                        for (const length of rowLengths) {
+                            if (cardIndex >= cards.length) break;
+                            rows.push(cards.slice(cardIndex, cardIndex + length));
+                            cardIndex += length;
+                        }
+
+                        return React.createElement('div', { 
+                            className: 'p-2 sm:p-4',
+                            style: {
+                                transform: `rotate(${boardRotation}deg)`,
+                                transition: 'transform 1.2s ease-in-out',
+                                transformStyle: 'preserve-3d',
+                                perspective: '2000px' // Added perspective to the main container
+                            }
+                        },
+                            rows.map((row, rowIndex) => React.createElement('div', {
+                                key: rowIndex,
+                                className: 'flex justify-center gap-1 sm:gap-2 md:gap-4 mb-1 sm:mb-2 md:mb-4'
+                            },
+                                row.map(card => React.createElement(Card, { key: card.id, card, onClick: handleCardClick }))
+                            ))
+                        );
+
+                    case 'idle':
+                    default:
+                         return React.createElement('div', { className: "text-center" }, [
+                            React.createElement('h2', { key: 'title', className: "text-4xl font-bold mb-2 text-gray-800" }, t.title),
+                            React.createElement('p', { key: 'description', className: "text-gray-500 max-w-md mx-auto mb-8" }, t.description),
+                            React.createElement('button', { key: 'start', onClick: resetGame, className: "px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-500 transition-colors text-xl shadow-lg" }, t.startGame)
+                        ]);
+                }
+            };
+            
+            const MultiplyModal = () => {
+                if (gameState !== 'askingForProduct') return null;
+                const [firstCard, secondCard] = flippedCards;
+                const val1 = getCardValue(firstCard);
+                const val2 = getCardValue(secondCard);
+                const correctProduct = val1 * val2;
+
+                return React.createElement('div', { className: 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4' },
+                    React.createElement('div', { className: `bg-white rounded-lg shadow-xl p-6 w-full max-w-sm text-center ${isProductInputIncorrect ? 'shake-animation' : ''}` }, [
+                        React.createElement('h3', { key: 'q', className: 'text-xl font-semibold mb-4' }, t.whatIsTheProduct(firstCard.rank, secondCard.rank)),
+                        React.createElement('input', {
+                            key: 'input',
+                            type: 'number',
+                            value: productAnswer,
+                            onChange: e => setProductAnswer(e.target.value),
+                            onKeyDown: e => e.key === 'Enter' && handleProductCheck(),
+                            className: 'w-full text-center text-2xl p-2 border-2 border-gray-300 rounded-md mb-2 focus:border-blue-500 outline-none',
+                            autoFocus: true
+                        }),
+                        !showCorrectProduct && React.createElement('div', { className: 'space-y-2' }, [
+                            React.createElement('button', {
+                                key: 'check',
+                                onClick: handleProductCheck,
+                                className: 'w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-500 transition-colors'
+                            }, t.checkAnswer),
+                            React.createElement('button', {
+                                key: 'skip',
+                                onClick: handleSkipProduct,
+                                className: 'w-full bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-md hover:bg-gray-300 transition-colors'
+                            }, t.skip)
+                        ]),
+                        React.createElement('div', { key: 'feedback', className: 'h-10 mt-2 text-red-500 font-semibold' },
+                            showCorrectProduct 
+                                ? `${t.correctAnswer}: ${correctProduct}`
+                                : (productTriesLeft < 3 ? t.triesLeft(productTriesLeft) : '')
+                        )
+                    ])
+                );
+            };
+        
+            return React.createElement('div', { className: "min-h-screen bg-gray-100 text-gray-800 flex flex-col" }, [
+                React.createElement('div', { key: 'header', className: "p-4 bg-white flex justify-between items-center border-b border-gray-200 shadow-sm sticky top-0 z-10" }, [
+                     React.createElement('a', { href: `../index.html?lang=${language}`, className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(HomeIcon)),
+                    React.createElement('div', { key: 'scores', className: "flex gap-4 sm:gap-6 items-center text-base sm:text-lg" }, [
+                        React.createElement('div', { key: 'moves' }, [React.createElement('span', { className: "font-bold text-gray-500" }, `${t.moves}: `), `${moves}`]),
+                        React.createElement('div', { key: 'pairs' }, [React.createElement('span', { className: "font-bold text-blue-600" }, `${t.pairsFound}: `), `${pairsFound} / ${totalPairs}`]),
+                    ]),
+                    React.createElement('div', { key: 'controls', className: "flex gap-2" }, [
+                        React.createElement('button', { key: 'settings', onClick: () => setShowSettings(true), className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(SettingsIcon)),
+                        React.createElement('button', { key: 'reset', onClick: resetGame, className: "p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" }, React.createElement(RotateCcwIcon))
+                    ])
+                ]),
+                
+                React.createElement('div', { key: 'quick-controls', className: 'p-2 bg-white border-b border-gray-200 flex items-center justify-center gap-2 text-sm' }, [
+                    React.createElement('button', {
+                        key: 'flip-mode',
+                        onClick: () => setIsFlipModeEnabled(p => !p),
+                        className: `h-10 w-10 flex items-center justify-center rounded-lg font-semibold transition-colors ${isFlipModeEnabled ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
+                        title: t.flipOnMatch
+                    }, React.createElement(FlipBoardIcon)),
+                    React.createElement('button', {
+                        key: 'multiply-mode',
+                        onClick: () => setIsMultiplyModeEnabled(p => !p),
+                        className: `h-10 w-10 flex items-center justify-center rounded-lg font-bold transition-colors ${isMultiplyModeEnabled ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,
+                        title: t.multiplyChallenge
+                    }, React.createElement(MathIcon))
+                ]),
+
+                React.createElement('main', { key: 'game-area', className: 'flex-1 flex justify-center items-center' }, renderGameArea()),
+                
+                React.createElement(MultiplyModal),
+
+                showSettings && React.createElement('div', { className: "fixed inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center p-4", onClick: () => setShowSettings(false) }, 
+                    React.createElement('div', { className: 'bg-white rounded-xl shadow-2xl w-full max-w-sm m-4 p-6 space-y-6 z-50', onClick: e => e.stopPropagation() }, [
+                        React.createElement('div', { key: 'stitle', className: 'flex justify-between items-center' }, [
+                            React.createElement('h2', { className: 'text-2xl font-bold text-gray-800' }, t.settingsTitle),
+                            React.createElement('button', { onClick: () => setShowSettings(false), className: 'p-2 rounded-full hover:bg-gray-100' }, React.createElement(XIcon))
+                        ]),
+                        React.createElement('div', { key: 's-lang', className: 'space-y-4 p-4 border border-gray-200 rounded-lg' }, [
+                            React.createElement('h3', { className: 'font-semibold text-lg text-gray-700' }, t.language),
+                            React.createElement('div', { className: 'flex gap-2' }, [
+                                React.createElement('button', { onClick: () => handleLanguageChange('nl'), className: `px-4 py-2 rounded-lg transition-colors text-2xl ${language === 'nl' ? 'bg-blue-100 border-2 border-blue-400' : 'bg-gray-100 border-2 border-transparent'}` }, '🇳🇱'),
+                                React.createElement('button', { onClick: () => handleLanguageChange('en'), className: `px-4 py-2 rounded-lg transition-colors text-2xl ${language === 'en' ? 'bg-blue-100 border-2 border-blue-400' : 'bg-gray-100 border-2 border-transparent'}` }, '🇬🇧')
+                            ])
+                        ])
+                    ])
+                ),
+                React.createElement('div', { key: 'signature', className: "w-full text-center py-4 text-xs text-gray-400 opacity-80 z-0" }, "© 2025 Valentijn Leenaers")
+            ].filter(Boolean));
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(MemoryGame));
+    </script>
+</body>
+</html>
+"That's a great observation. Mobile layout requires careful attention to prevent content from overflowing. I've adjusted the card layout for the smallest screen sizes.
+
+I've updated the code in the Canvas to break the cards into more rows on narrow screens. This ensures that the layout remains clean and functional on any device, preventing any distortion of the viewport.
+
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Memory Card Game</title>
+    <script src="[https://unpkg.com/react@18/umd/react.development.js](https://unpkg.com/react@18/umd/react.development.js)"></script>
+    <script src="[https://unpkg.com/react-dom@18/umd/react-dom.development.js](https://unpkg.com/react-dom@18/umd/react-dom.development.js)"></script>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    
+    <style>
+        body { margin: 0; padding: 0; overflow-x: hidden; font-family: system-ui, -apple-system, sans-serif; }
+        * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        html, body, #root { min-height: 100%; width: 100%; }
+        
+        .card-container {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d; /* Safari compatibility */
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d; /* Safari fix */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border-radius: 0.5rem;
+        }
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+        }
+        .card-front {
+            transform: rotateY(180deg);
+        }
+        .card-back {
+            background-color: #1A237E; /* A deep, classic indigo */
+            border: 5px solid white;
+            box-shadow: inset 0 0 0 2px #1A237E;
+            
+            /* A more refined, layered pattern for a classic feel */
+            background-image: 
+                /* Layer 3: Dots at intersections */
+                radial-gradient(rgba(255, 255, 255, 0.2) 15%, transparent 16%),
+                /* Layer 1 & 2: A finer cross-hatch pattern */
+                linear-gradient(45deg, rgba(200, 200, 255, 0.15) 25%, transparent 25%, transparent 75%, rgba(200, 200, 255, 0.15) 75%),
+                linear-gradient(-45deg, rgba(200, 200, 255, 0.15) 25%, transparent 25%, transparent 75%, rgba(200, 200, 255, 0.15) 75%);
+
+            background-size: 20px 20px, 10px 10px, 10px 10px;
+            background-position: 10px 10px, 0 0, 0 0;
+        }
+        .card-container.matched {
+            opacity: 0.25;
+            transform: scale(0.95);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        .win-animation {
+            animation: win-pop 0.5s ease-out forwards;
+        }
+        .shake-animation {
+            animation: shake 0.5s;
+        }
+        @keyframes win-pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+        // --- Cookie Utilities ---
+        const setCookie = (name, value, days = 365) => {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expires.toUTCString()};path=/`;
+        };
+
+        const getCookie = (name) => {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) {
+                    try {
+                        return JSON.parse(decodeURIComponent(c.substring(nameEQ.length, c.length)));
+                    } catch (e) { return null; }
+                }
+            }
+            return null;
+        };
+
+        // --- Custom Hook for window width ---
+        const useWindowWidth = () => {
+            const [width, setWidth] = useState(window.innerWidth);
+            useEffect(() => {
+                const handleResize = () => setWidth(window.innerWidth);
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+            return width;
+        };
+
+        // --- Icon Components (Reused from original game) ---
+        const PlayIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement('polygon', { points: "5,3 19,12 5,21" }));
+        const RotateCcwIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('polyline', { key: 1, points: "1,4 1,10 7,10" }), React.createElement('path', { key: 2, d: "M3.51 15a9 9 0 1 0 2.13-9.36L1 10" })]);
+        const SettingsIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" }), React.createElement('circle', { key: 2, cx: "12", cy: "12", r: "3" })]);
+        const XIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { key: 1, d: "M18 6L6 18" }), React.createElement('path', { key: 2, d: "M6 6l12 12" })]);
+        const HomeIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [React.createElement('path', { d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }), React.createElement('polyline', { points: "9 22 9 12 15 12 15 22" })]);
+        const FlipBoardIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [
+            React.createElement('polyline', { key: 1, points: "23 4 23 10 17 10" }),
+            React.createElement('polyline', { key: 2, points: "1 20 1 14 7 14" }),
+            React.createElement('path', { key: 3, d: "M3.51 9a9 9 0 0 1 14.85-3.36L23 10" }),
+            React.createElement('path', { key: 4, d: "M20.49 15a9 9 0 0 1-14.85 3.36L1 14" })
+        ]);
+        const MathIcon = () => React.createElement('svg', { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }, [
+            React.createElement('rect', { key: 'border', x: 3, y: 3, width: 18, height: 18, rx: 2 }),
+            // Plus
+            React.createElement('line', { key: 'plus-v', x1: 8, y1: 6, x2: 8, y2: 10 }),
+            React.createElement('line', { key: 'plus-h', x1: 6, y1: 8, x2: 10, y2: 8 }),
+            // Minus
+            React.createElement('line', { key: 'minus', x1: 6, y1: 16, x2: 10, y2: 16 }),
+            // Multiply
+            React.createElement('line', { key: 'mul1', x1: 14, y1: 6, x2: 18, y2: 10 }),
+            React.createElement('line', { key: 'mul2', x1: 18, y1: 6, x2: 14, y2: 10 }),
+            // Divide
+            React.createElement('line', { key: 'div', x1: 14, y1: 16, x2: 18, y2: 16 }),
+            React.createElement('circle', { key: 'div-dot1', cx: 16, cy: 14, r: 0.5, fill: 'currentColor' }),
+            React.createElement('circle', { key: 'div-dot2', cx: 16, cy: 18, r: 0.5, fill: 'currentColor' })
+        ]);
+
+        
+        // --- Internationalization ---
+        const translations = {
+            en: {
+                title: "Memory Game",
+                description: "Find all the matching pairs. For J, Q, K, and A, you must match by color as well.",
+                startGame: "Start Game",
+                moves: "Moves",
+                pairsFound: "Pairs Found",
+                settingsTitle: "Settings",
+                language: "Language",
+                gameWonTitle: "Congratulations!",
+                gameWonText: (moves) => `You found all pairs in ${moves} moves.`,
+                playAgain: "Play Again",
+                goBack: "Go to Homepage",
+                flipOnMatch: "Toggle Board Flip on Match",
+                multiplyChallenge: "Toggle Multiply Challenge",
+                whatIsTheProduct: (val1, val2) => `What is ${val1} × ${val2}?`,
+                checkAnswer: "Check",
+                correctAnswer: "Correct Answer",
+                triesLeft: (count) => `${count} ${count === 1 ? 'try' : 'tries'} left`,
+                skip: "Skip"
+            },
+            nl: {
+                title: "Memory Spel",
+                description: "Vind alle paren. Voor B, V, H, en A moet je ook op kleur matchen.",
+                startGame: "Start Spel",
+                moves: "Zetten",
+                pairsFound: "Paren Gevonden",
+                settingsTitle: "Instellingen",
+                language: "Taal",
+                gameWonTitle: "Gefeliciteerd!",
+                gameWonText: (moves) => `Je hebt alle paren gevonden in ${moves} zetten.`,
+                playAgain: "Opnieuw Spelen",
+                goBack: "Ga naar de Homepage",
+                flipOnMatch: "Wissel Bord na Match",
+                multiplyChallenge: "Wissel Vermenigvuldig-uitdaging",
+                whatIsTheProduct: (val1, val2) => `Wat is ${val1} × ${val2}?`,
+                checkAnswer: "Controleer",
+                correctAnswer: "Juiste Antwoord",
+                triesLeft: (count) => `${count} ${count === 1 ? 'poging' : 'pogingen'} over`,
+                skip: "Overslaan"
+            }
+        };
+
+        // --- Utility Functions ---
+        const shuffleArray = (array) => {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        };
+        
+        const getCardValue = (card) => {
+            const rank = card.rank;
+            if (!isNaN(rank)) return parseInt(rank, 10);
+            if (rank === 'A') return 1;
+            if (rank === 'J') return 11;
+            if (rank === 'Q') return 12;
+            if (rank === 'K') return 13;
+            return 0;
+        };
+        
+        // --- Card Component (Moved Outside) ---
+        const Card = ({ card, onClick }) => {
+            const cardColorClass = (card.suit === '♥' || card.suit === '♦') ? 'text-red-500' : 'text-black';
+
+            return React.createElement('div', {
+                className: `card-container w-16 h-24 sm:w-20 sm:h-28 lg:w-24 lg:h-36 cursor-pointer ${card.isMatched ? 'matched' : ''}`,
+                onClick: () => onClick(card)
+            },
+                React.createElement('div', { className: `card-inner ${card.isFlipped ? 'flipped' : ''}` }, [
+                    React.createElement('div', { key: 'back', className: 'card-face card-back' }),
+                    React.createElement('div', {
+                        key: 'front',
+                        className: `card-face card-front bg-white border-2 border-gray-300 ${cardColorClass} relative`
+                    }, [
+                        // Top-left symbol
+                        React.createElement('div', {
+                            key: 'top-left',
+                            className: 'absolute top-1 left-2 flex flex-col items-center font-bold leading-none'
+                        }, [
+                            React.createElement('span', { key: 'rank', className: 'text-lg sm:text-xl' }, card.rank),
+                            React.createElement('span', { key: 'suit', className: 'text-md sm:text-lg' }, card.suit)
+                        ]),
+                        // Bottom-right symbol (rotated)
+                        React.createElement('div', {
+                            key: 'bottom-right',
+                            className: 'absolute bottom-1 right-2 flex flex-col items-center font-bold leading-none',
+                            style: { transform: 'rotate(180deg)' }
+                        }, [
+                            React.createElement('span', { key: 'rank', className: 'text-lg sm:text-xl' }, card.rank),
+                            React.createElement('span', { key: 'suit', className: 'text-md sm:text-lg' }, card.suit)
+                        ])
+                    ])
+                ])
+            );
+        };
+
+
+        // --- Main Game Component ---
+        const MemoryGame = () => {
+            const [gameState, setGameState] = useState('idle'); // 'idle', 'playing', 'finished', 'askingForProduct'
+            const [cards, setCards] = useState([]);
+            const [flippedCards, setFlippedCards] = useState([]);
+            const [moves, setMoves] = useState(0);
+            const [pairsFound, setPairsFound] = useState(0);
+            const [showSettings, setShowSettings] = useState(false);
+            const [isChecking, setIsChecking] = useState(false);
+            
+            // Challenge State
+            const [productTriesLeft, setProductTriesLeft] = useState(3);
+            const [productAnswer, setProductAnswer] = useState('');
+            const [isProductInputIncorrect, setIsProductInputIncorrect] = useState(false);
+            const [showCorrectProduct, setShowCorrectProduct] = useState(false);
+            
+            // Settings State (with cookie loading)
+            const [language, setLanguage] = useState(() => getCookie('memoryGameLang') || 'nl');
+            const [isFlipModeEnabled, setIsFlipModeEnabled] = useState(() => getCookie('memoryGameFlipMode') ?? true);
+            const [isMultiplyModeEnabled, setIsMultiplyModeEnabled] = useState(() => getCookie('memoryGameMultiplyMode') ?? false);
+            const [boardRotation, setBoardRotation] = useState(0);
+            
+            const t = translations[language];
+            const totalPairs = 17; // (9 ranks * 1 pair) + (4 ranks * 2 pairs)
+            const windowWidth = useWindowWidth();
+
+            const handleLanguageChange = (newLang) => {
+                setLanguage(newLang);
+                const url = new URL(window.location);
+                url.searchParams.set('lang', newLang);
+                window.history.pushState({}, '', url);
+            };
+
+            const setupBoard = useCallback(() => {
+                const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10'];
+                const faceRanks = ['J', 'Q', 'K', 'A'];
+                const suits = { 'red': ['♥', '♦'], 'black': ['♠', '♣'] };
+                let newCards = [];
+                let idCounter = 0;
+
+                // Create pairs for ranks 2-10 (match by rank only, with unique suits)
+                const allSuits = ['♥', '♦', '♠', '♣'];
+                ranks.forEach(rank => {
+                    const shuffledSuits = shuffleArray([...allSuits]);
+                    const suit1 = shuffledSuits[0];
+                    const suit2 = shuffledSuits[1];
+                    const matchKey = rank;
+                    const color1 = (suit1 === '♥' || suit1 === '♦') ? 'red' : 'black';
+                    const color2 = (suit2 === '♥' || suit2 === '♦') ? 'red' : 'black';
+
+                    newCards.push({ id: idCounter++, rank, suit: suit1, color: color1, isFlipped: false, isMatched: false, matchKey });
+                    newCards.push({ id: idCounter++, rank, suit: suit2, color: color2, isFlipped: false, isMatched: false, matchKey });
+                });
+
+                // Create 4 of each face card (match by rank and color)
+                faceRanks.forEach(rank => {
+                    // Red pair
+                    const redMatchKey = `${rank}-red`;
+                    newCards.push({ id: idCounter++, rank, suit: suits.red[0], color: 'red', isFlipped: false, isMatched: false, matchKey: redMatchKey });
+                    newCards.push({ id: idCounter++, rank, suit: suits.red[1], color: 'red', isFlipped: false, isMatched: false, matchKey: redMatchKey });
+                    
+                    // Black pair
+                    const blackMatchKey = `${rank}-black`;
+                    newCards.push({ id: idCounter++, rank, suit: suits.black[0], color: 'black', isFlipped: false, isMatched: false, matchKey: blackMatchKey });
+                    newCards.push({ id: idCounter++, rank, suit: suits.black[1], color: 'black', isFlipped: false, isMatched: false, matchKey: blackMatchKey });
+                });
+                
+                setCards(shuffleArray(newCards));
+            }, []);
+
+            const resetGame = useCallback(() => {
+                setGameState('playing');
+                setMoves(0);
+                setPairsFound(0);
+                setFlippedCards([]);
+                setIsChecking(false);
+                setBoardRotation(0); // Reset board rotation
+                setupBoard();
+            }, [setupBoard]);
+            
+            useEffect(() => {
+                // Start game on initial load
+                resetGame();
+            }, [resetGame]);
+
+            const handleCardClick = (clickedCard) => {
+                if (isChecking || gameState !== 'playing' || clickedCard.isFlipped || flippedCards.length >= 2) {
+                    return;
+                }
+                const newCards = cards.map(card =>
+                    card.id === clickedCard.id ? { ...card, isFlipped: true } : card
+                );
+                setCards(newCards);
+                setFlippedCards(prev => [...prev, clickedCard]);
+            };
+
+            const proceedWithMatchCheck = useCallback(() => {
+                const [firstCard, secondCard] = flippedCards;
+                if (firstCard.matchKey === secondCard.matchKey) {
+                    // It's a match
+                    setTimeout(() => {
+                        setCards(currentCards => currentCards.map(card => 
+                            card.matchKey === firstCard.matchKey ? { ...card, isMatched: true, isFlipped: true } : card
+                        ));
+                        setPairsFound(p => p + 1);
+                        setFlippedCards([]);
+                        setIsChecking(false);
+                        if (isFlipModeEnabled) {
+                            setBoardRotation(r => r + 180);
+                        }
+                    }, 600);
+                } else {
+                    // Not a match
+                    setTimeout(() => {
+                        setCards(currentCards => currentCards.map(card => 
+                            (card.id === firstCard.id || card.id === secondCard.id) ? { ...card, isFlipped: false } : card
+                        ));
+                        setFlippedCards([]);
+                        setIsChecking(false);
+                    }, 1200);
+                }
+            }, [flippedCards, isFlipModeEnabled]);
+
+            useEffect(() => {
+                if (flippedCards.length === 2) {
+                    setIsChecking(true);
+                    setMoves(m => m + 1);
+                    if (isMultiplyModeEnabled) {
+                        setGameState('askingForProduct');
+                        setProductTriesLeft(3);
+                        setProductAnswer('');
+                        setShowCorrectProduct(false);
+                    } else {
+                        proceedWithMatchCheck();
+                    }
+                }
+            }, [flippedCards, isMultiplyModeEnabled, proceedWithMatchCheck]);
+            
+            const handleProductCheck = () => {
+                const [firstCard, secondCard] = flippedCards;
+                const val1 = getCardValue(firstCard);
+                const val2 = getCardValue(secondCard);
+                const correctProduct = val1 * val2;
+
+                if (parseInt(productAnswer, 10) === correctProduct) {
+                    setGameState('playing');
+                    proceedWithMatchCheck();
+                } else {
+                    const newTries = productTriesLeft - 1;
+                    setProductTriesLeft(newTries);
+                    setProductAnswer('');
+                    setIsProductInputIncorrect(true);
+                    setTimeout(() => setIsProductInputIncorrect(false), 500);
+
+                    if (newTries <= 0) {
+                        setShowCorrectProduct(true);
+                        setTimeout(() => {
+                            setGameState('playing');
+                            proceedWithMatchCheck();
+                        }, 2000);
+                    }
+                }
+            };
+            
+            const handleSkipProduct = () => {
+                setGameState('playing');
+                proceedWithMatchCheck();
+            };
+            
+            useEffect(() => {
+                if (pairsFound > 0 && pairsFound === totalPairs) {
+                    setTimeout(() => {
+                        setGameState('finished');
+                    }, 800);
+                }
+            }, [pairsFound, totalPairs]);
+
+
+            // Save settings to cookie whenever they change
+            useEffect(() => { setCookie('memoryGameLang', language); }, [language]);
+            useEffect(() => { setCookie('memoryGameFlipMode', isFlipModeEnabled); }, [isFlipModeEnabled]);
+            useEffect(() => { setCookie('memoryGameMultiplyMode', isMultiplyModeEnabled); }, [isMultiplyModeEnabled]);
+
+            const renderGameArea = () => {
+                switch (gameState) {
+                    case 'finished':
+                        return React.createElement('div', { className: 'text-center win-animation' }, [
+                            React.createElement('h2', { key: 'title', className: 'text-5xl font-bold text-green-600 mb-4' }, t.gameWonTitle),
+                            React.createElement('p', { key: 'text', className: 'text-xl text-gray-700 mb-8' }, t.gameWonText(moves)),
+                            React.createElement('button', { key: 'play', onClick: resetGame, className: "px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-500 transition-colors text-xl shadow-lg" }, t.playAgain)
+                        ]);
+                    
+                    case 'playing':
+                    case 'askingForProduct':
+                        let rowLengths;
+                        if (windowWidth > 1280) {
+                            rowLengths = [9, 8, 9, 8];
+                        } else if (windowWidth > 1024) {
+                            rowLengths = [8, 7, 8, 7, 4];
+                        } else if (windowWidth > 768) {
+                            rowLengths = [7, 6, 7, 6, 8];
+                        } else if (windowWidth > 480) {
+                            rowLengths = [6, 5, 6, 5, 6, 6];
+                        } else {
+                            rowLengths = [5, 4, 5, 4, 5, 4, 5, 2];
                         }
                         
                         const rows = [];
